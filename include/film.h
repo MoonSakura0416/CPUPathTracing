@@ -12,24 +12,24 @@ public:
      *
      * @param path The filesystem path where the PPM file will be saved.
      */
-    void Save(const std::filesystem::path& path) const;
+    void save(const std::filesystem::path& path) const;
 
     [[nodiscard]] size_t GetWidth() const
     {
         return width_;
     }
 
-    [[nodiscard]] size_t GetHeight() const
+    [[nodiscard]] size_t getHeight() const
     {
         return height_;
     }
 
-    [[nodiscard]] glm::vec3 GetPixel(size_t x, size_t y) const
+    [[nodiscard]] glm::vec3 getPixel(size_t x, size_t y) const
     {
         return pixels_[y * width_ + x];
     }
 
-    void SetPixel(size_t x, size_t y, const glm::vec3& color)
+    void setPixel(size_t x, size_t y, const glm::vec3& color)
     {
         pixels_[y * width_ + x] = color;
     }

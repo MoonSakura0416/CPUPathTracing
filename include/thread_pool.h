@@ -1,9 +1,11 @@
 #pragma once
 
+#include "spin_lock.h"
+
+#include <functional>
 #include <vector>
 #include <thread>
 #include <list>
-#include <mutex>
 
 class Task {
 public:
@@ -13,15 +15,20 @@ public:
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t numThreads);
+    explicit ThreadPool(size_t numThreads = 0);
     ~ThreadPool();
+
+    void wait() const;
 
     static void workerThread(ThreadPool* master);
     void addTask(Task* task);
     Task* getTask();
+
+    void parallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& func);
+
 private:
-    bool alive_ {true};
+    std::atomic<bool> alive_ {true};
     std::vector<std::thread> threads_;
     std::list<Task*> tasks_;
-    std::mutex mutex_;
+    SpinLock spinlock_{};
 };
