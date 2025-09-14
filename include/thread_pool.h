@@ -5,7 +5,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include <list>
+#include <queue>
 #include <thread>
 
 class Task {
@@ -30,6 +30,6 @@ public:
 private:
     std::atomic<bool> alive_ {true};
     std::vector<std::thread> threads_;
-    std::list<std::unique_ptr<Task>> tasks_;
+    std::queue<std::unique_ptr<Task>> tasks_;
     SpinLock spinlock_{};
 };

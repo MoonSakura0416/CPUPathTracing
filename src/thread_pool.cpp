@@ -6,7 +6,7 @@ ThreadPool::ThreadPool(size_t numThreads)
         numThreads = std::thread::hardware_concurrency();
     }
     for (size_t i = 0; i < numThreads; i++) {
-        threads_.push_back(std::thread(ThreadPool::workerThread, this));
+        threads_.emplace_back(workerThread, this);
     }
 }
 
@@ -40,7 +40,7 @@ void ThreadPool::workerThread(ThreadPool* master)
 void ThreadPool::addTask(std::unique_ptr<Task> task)
 {
     Guard guard{spinlock_};
-    tasks_.push_back(std::move(task));
+    tasks_.push(std::move(task));
 }
 
 std::unique_ptr<Task> ThreadPool::getTask()
@@ -50,7 +50,7 @@ std::unique_ptr<Task> ThreadPool::getTask()
         return nullptr;
     }
     auto task = std::move(tasks_.front());
-    tasks_.pop_front();
+    tasks_.pop();
     return task;
 }
 
@@ -77,7 +77,7 @@ void ThreadPool::parallelFor(size_t width, size_t height,
     Guard guard{spinlock_};
     for (size_t i = 0; i < width; i++) {
         for (size_t j = 0; j < height; j++) {
-            tasks_.push_back(std::make_unique<ParallelForTask>(i, j, func));
+            tasks_.push(std::make_unique<ParallelForTask>(i, j, func));
         }
     }
 }
