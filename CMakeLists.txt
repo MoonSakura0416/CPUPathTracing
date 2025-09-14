@@ -29,6 +29,12 @@ target_link_libraries(raytracer PRIVATE
         #assimp::assimp
 )
 
+target_compile_definitions(raytracer PUBLIC
+        GLM_FORCE_DEPTH_ZERO_TO_ONE
+        GLM_FORCE_LEFT_HANDED
+        GLM_FORCE_RADIANS
+)
+
 target_include_directories(raytracer PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )

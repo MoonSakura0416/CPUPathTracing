@@ -14,17 +14,17 @@ public:
      */
     void save(const std::filesystem::path& path) const;
 
-    [[nodiscard]] size_t GetWidth() const
+    [[nodiscard]] size_t getWidth() const
     {
         return width_;
     }
 
-    [[nodiscard]] size_t getHeight() const
+    [[nodiscard]] size_t getHeight() const noexcept
     {
         return height_;
     }
 
-    [[nodiscard]] glm::vec3 getPixel(size_t x, size_t y) const
+    [[nodiscard]] glm::vec3 getPixel(size_t x, size_t y) const noexcept
     {
         return pixels_[y * width_ + x];
     }

@@ -4,6 +4,8 @@
 
 Film::Film(size_t width, size_t height) : width_(width), height_(height)
 {
+    if (width <= 0 || height <= 0)
+        throw std::invalid_argument("Film size must be positive");
     pixels_.resize(width * height);
 }
 
