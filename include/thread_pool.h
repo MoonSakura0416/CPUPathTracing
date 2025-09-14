@@ -29,6 +29,7 @@ public:
 
 private:
     std::atomic<bool> alive_ {true};
+    std::atomic<int> pendingTasks_ {0};
     std::vector<std::thread> threads_;
     std::queue<std::unique_ptr<Task>> tasks_;
     SpinLock spinlock_{};

@@ -21,7 +21,7 @@ ThreadPool::~ThreadPool()
 }
 void ThreadPool::wait() const
 {
-    while (!tasks_.empty()) {
+    while (pendingTasks_ > 0) {
         std::this_thread::yield();
     }
 }
@@ -31,6 +31,7 @@ void ThreadPool::workerThread(ThreadPool* master)
     while (master->alive_) {
         if (auto task = master->getTask(); task != nullptr) {
             task->run();
+            --(master->pendingTasks_);
         } else {
             std::this_thread::yield();
         }
@@ -40,6 +41,7 @@ void ThreadPool::workerThread(ThreadPool* master)
 void ThreadPool::addTask(std::unique_ptr<Task> task)
 {
     Guard guard{spinlock_};
+    ++pendingTasks_;
     tasks_.push(std::move(task));
 }
 
@@ -77,6 +79,7 @@ void ThreadPool::parallelFor(size_t width, size_t height,
     Guard guard{spinlock_};
     for (size_t i = 0; i < width; i++) {
         for (size_t j = 0; j < height; j++) {
+            ++pendingTasks_;
             tasks_.push(std::make_unique<ParallelForTask>(i, j, func));
         }
     }
