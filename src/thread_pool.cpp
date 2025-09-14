@@ -37,24 +37,24 @@ void ThreadPool::workerThread(ThreadPool* master)
     }
 }
 
-void ThreadPool::addTask(Task* task)
+void ThreadPool::addTask(std::unique_ptr<Task> task)
 {
     Guard guard{spinlock_};
-    tasks_.push_back(task);
+    tasks_.push_back(std::move(task));
 }
 
-Task* ThreadPool::getTask()
+std::unique_ptr<Task> ThreadPool::getTask()
 {
     Guard guard{spinlock_};
     if (tasks_.empty()) {
         return nullptr;
     }
-    Task* task = tasks_.front();
+    auto task = std::move(tasks_.front());
     tasks_.pop_front();
     return task;
 }
 
-class ParallelForTask : public Task {
+class ParallelForTask final : public Task {
 public:
     ParallelForTask(size_t x, size_t y, const std::function<void(size_t, size_t)>& func)
         : x_(x), y_(y), func_(func)
@@ -77,7 +77,7 @@ void ThreadPool::parallelFor(size_t width, size_t height,
     Guard guard{spinlock_};
     for (size_t i = 0; i < width; i++) {
         for (size_t j = 0; j < height; j++) {
-            tasks_.push_back(new ParallelForTask(i, j, func));
+            tasks_.push_back(std::make_unique<ParallelForTask>(i, j, func));
         }
     }
 }
