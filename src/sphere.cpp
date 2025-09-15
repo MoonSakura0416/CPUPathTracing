@@ -5,17 +5,19 @@ std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax)
     // Solve t^2*d.d + 2t*(o-c).d + (o-c).(o-c) - R^2 = 0
     // note d.d = 1
     glm::vec3 co = ray.origin - center;
-    float     b = glm::dot(co, ray.direction);
+    float     a = glm::dot(ray.direction, ray.direction);
+    float     b = 2 * glm::dot(co, ray.direction);
+    float     h = -b / 2;
     float     c = glm::dot(co, co) - radius * radius;
-    float     discriminant = b * b - c;
+    float     discriminant = h * h - a * c;
     if (discriminant < 0) {
         return std::nullopt;
     }
 
-    float hitT = -b - std::sqrt(discriminant);
+    float hitT = (h - std::sqrt(discriminant)) / a;
 
     if (hitT < 0) {
-        hitT = -b + std::sqrt(discriminant);
+        hitT = (h + std::sqrt(discriminant)) / a;
     }
 
     if (hitT > tMin && hitT < tMax) {

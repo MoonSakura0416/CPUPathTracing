@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <vector>
 
-class Model: public Shape{
+class Model final : public Shape{
 public:
     explicit Model(const std::vector<Triangle>& triangles)
         : triangles_(triangles) {}

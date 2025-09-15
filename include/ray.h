@@ -9,6 +9,10 @@ struct Ray {
     /** Computes the point along the ray at parameter t.
      */
     [[nodiscard]] glm::vec3 at(float t) const { return origin + t * direction; }
+
+    /** Transforms the ray from world space to the model space.
+     */
+    [[nodiscard]] Ray transform(const glm::mat4& invModel) const;
 };
 
 
