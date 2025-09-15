@@ -1,4 +1,5 @@
 #include "film.h"
+#include "rgb.h"
 
 #include <fstream>
 
@@ -15,9 +16,8 @@ void Film::save(const std::filesystem::path& path) const
     file << "P6\n" << width_ << ' ' << height_ << "\n255\n";
     for (size_t j = 0; j < height_; ++j) {
         for (size_t i = 0; i < width_; ++i) {
-            const auto&       color = getPixel(i, j);
-            const glm::u8vec3 colorInt = glm::clamp(color * 255.f, 0.f, 255.f);
-            file << colorInt.x << colorInt.y << colorInt.z;
+            RGB rgb{getPixel(i,j)};
+            file << rgb.r << rgb.g << rgb.b;
         }
     }
 }

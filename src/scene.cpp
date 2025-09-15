@@ -19,8 +19,9 @@ std::optional<HitInfo> Scene::intersect(const Ray& ray, float tMin, float tMax) 
 
     if (closestInstance) {
         closestHit->hitPos = closestInstance->modelMatrix * glm::vec4(closestHit->hitPos, 1.0f);
-        closestHit->normal = glm::normalize(glm::transpose(closestInstance->inverseModelMatrix) *
-                                          glm::vec4(closestHit->normal, 0.0f));
+        closestHit->normal =
+            glm::normalize(glm::vec3{glm::transpose(closestInstance->inverseModelMatrix) *
+                                     glm::vec4(closestHit->normal, 0.0f)});
     }
 
     return closestHit;
