@@ -5,29 +5,41 @@
 #include "film.h"
 #include "camera.h"
 #include "sphere.h"
+#include "model.h"
 
 int main()
 {
     ThreadPool threadpool{};
-    Film film{1920,1080};
-    Camera camera{film, {0,0,1}, {0,0,0}, 90};
+    Film       film{1920, 1080};
+    Camera     camera{film, {-1, 0, 0}, {0, 0, 0}, 90};
 
-    Sphere sphere{.center={0,0,0}, .radius=0.5f};
+    Model model{"model/simple_dragon.obj"};
 
-    glm::vec3 lightPos {1,1,1};
+    std::atomic<int> count{0};
 
-    threadpool.parallelFor(film.getWidth(),film.getHeight(),[&film, &camera, &sphere, lightPos](size_t x, size_t y){
-        auto ray = camera.getRay({static_cast<int>(x),static_cast<int>(y)});
-        auto intersect = sphere.intersect(ray);
-        if (intersect.has_value()) {
-            auto hitPos = ray.at(intersect.value());
-            auto normal = glm::normalize(hitPos - sphere.center);
-            auto lightDir = glm::normalize(lightPos - hitPos);
-            auto cosine = glm::dot(normal, lightDir);
-            film.setPixel(x,y,{cosine,cosine,cosine});
-        }
+    Sphere sphere{{0, 0, 0}, 0.5f};
 
-    });
+    glm::vec3 lightPos{-1, 2, 1};
+
+    Shape& shape = model;
+
+    threadpool.parallelFor(film.getWidth(), film.getHeight(),
+                           [&film, &camera, &shape, &count, lightPos](size_t x, size_t y) {
+                               auto ray = camera.getRay({static_cast<int>(x), static_cast<int>(y)});
+                               auto hitInfo = shape.intersect(ray);
+                               if (hitInfo.has_value()) {
+                                   auto lightDir = glm::normalize(lightPos - hitInfo->hitPos);
+                                   auto cosine = glm::max(0.f, glm::dot(hitInfo->normal, lightDir));
+                                   film.setPixel(x,y,{cosine,cosine,cosine});
+                                   //film.setPixel(x, y, {1, 1, 1});
+                               }
+
+                               ++count;
+                               if (count % film.getWidth() == 0) {
+                                   std::println("{:.2f}", static_cast<float>(count) /
+                                                              (film.getWidth() * film.getHeight()));
+                               }
+                           });
 
     threadpool.wait();
 

@@ -39,6 +39,12 @@ target_include_directories(raytracer PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+# ========== Copy resources ==========
+add_custom_command(TARGET raytracer POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/model
+        ${CMAKE_CURRENT_BINARY_DIR}/model
+)
 
 # ========== Warning (cross-platform） ==========
 if (MSVC)
