@@ -9,15 +9,15 @@ std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax)
     float     b = 2 * glm::dot(co, ray.direction);
     float     h = -b / 2;
     float     c = glm::dot(co, co) - radius * radius;
-    float     discriminant = h * h - a * c;
+    float     discriminant = b * b - 4 * a * c;
     if (discriminant < 0) {
         return std::nullopt;
     }
 
-    float hitT = (h - std::sqrt(discriminant)) / a;
+    float hitT = (-b - std::sqrt(discriminant)) * 0.5 / a;
 
     if (hitT < 0) {
-        hitT = (h + std::sqrt(discriminant)) / a;
+        hitT = (-b + std::sqrt(discriminant)) * 0.5 / a;
     }
 
     if (hitT > tMin && hitT < tMax) {

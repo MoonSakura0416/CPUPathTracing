@@ -16,8 +16,9 @@ void Film::save(const std::filesystem::path& path) const
     file << "P6\n" << width_ << ' ' << height_ << "\n255\n";
     for (size_t j = 0; j < height_; ++j) {
         for (size_t i = 0; i < width_; ++i) {
-            RGB rgb{getPixel(i,j)};
-            file << rgb.r << rgb.g << rgb.b;
+            auto pixel = getPixel(i,j);
+            RGB rgb{pixel.color / static_cast<float>(pixel.spp)};
+            file << static_cast<uint8_t>(rgb.r) << static_cast<uint8_t>(rgb.g) << static_cast<uint8_t>(rgb.b);
         }
     }
 }

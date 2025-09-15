@@ -1,6 +1,9 @@
 #pragma once
 
+#include "material.h"
+
 #include <glm/glm.hpp>
+#include <memory>
 
 struct Ray {
     glm::vec3 origin;
@@ -20,5 +23,6 @@ struct HitInfo {
     float hitT;
     glm::vec3 hitPos;
     glm::vec3 normal;
-
+    std::shared_ptr<Material> material;
 };
+
