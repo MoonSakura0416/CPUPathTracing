@@ -1,8 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <vector>
-#include <filesystem>
+#include "pch.h"
 
 struct Pixel {
     glm::vec3 color{0, 0, 0};

@@ -1,10 +1,12 @@
 #pragma once
 
+#include "pch.h"
+
 #include "Camera/camera.h"
 #include "Shape/scene.h"
 #include "Util/rng.h"
 
-#include <thread>
+
 
 #define DEFINE_RENDERER(className)                                                                 \
     class className##Renderer : public BaseRenderer {                                              \

@@ -39,6 +39,10 @@ target_include_directories(raytracer PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+target_precompile_headers(raytracer PRIVATE
+ "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.h"
+)
+
 # ========== Copy resources ==========
 add_custom_command(TARGET raytracer POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

@@ -1,9 +1,9 @@
 #pragma once
 
+#include "pch.h"
+
 #include "Camera/ray.h"
 #include "Util/constants.h"
-
-#include <optional>
 
 struct Shape {
     virtual ~Shape() = default;

@@ -1,12 +1,8 @@
 #pragma once
 
-#include "spin_lock.h"
+#include "pch.h"
 
-#include <functional>
-#include <memory>
-#include <vector>
-#include <queue>
-#include <thread>
+#include "spin_lock.h"
 
 class Task {
 public:

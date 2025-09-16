@@ -1,10 +1,9 @@
 #pragma once
 
+#include "pch.h"
+
 #include "shape.h"
 #include "material.h"
-
-#include <memory>
-#include <vector>
 
 struct ShapeInstance {
     std::shared_ptr<Shape>    shape;

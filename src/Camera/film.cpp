@@ -1,9 +1,11 @@
+#include "pch.h"
+
 #include "Camera/film.h"
 #include "Util/rgb.h"
 #include "Util/profile.h"
 #include "Thread/thread_pool.h"
 
-#include <fstream>
+
 
 Film::Film(size_t width, size_t height) : width_(width), height_(height)
 {

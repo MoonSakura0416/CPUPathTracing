@@ -1,10 +1,9 @@
+#include "pch.h"
+
 #include "Shape/model.h"
 #include "Util/profile.h"
 
-#include <print>
-#include <iostream>
-#include <sstream>
-#include <fstream>
+
 
 Model::Model(const std::filesystem::path& path)
 {

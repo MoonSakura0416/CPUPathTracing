@@ -1,6 +1,7 @@
+#include "pch.h"
+
 #include "Util/profile.h"
 
-#include <print>
 
 Profile::Profile(std::string name)
     : name(std::move(name)), start(std::chrono::high_resolution_clock::now())

@@ -1,6 +1,6 @@
-#include "Shape/scene.h"
+#include "pch.h"
 
-#include <glm/ext/matrix_transform.hpp>
+#include "Shape/scene.h"
 
 std::optional<HitInfo> Scene::intersect(const Ray& ray, float tMin, float tMax) const
 {

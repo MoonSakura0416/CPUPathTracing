@@ -1,9 +1,9 @@
 #pragma once
 
+#include "pch.h"
+
 #include "Shape/material.h"
 
-#include <glm/glm.hpp>
-#include <memory>
 
 struct Ray {
     glm::vec3 origin;

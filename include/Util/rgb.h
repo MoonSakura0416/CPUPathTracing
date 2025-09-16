@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "pch.h"
 
 struct RGB {
     constexpr RGB(int r, int g, int b) : r(r), g(g), b(b) {}

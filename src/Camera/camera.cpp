@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include "Camera/camera.h"
 
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
 
 
 Camera::Camera(Film& film, const glm::vec3& eye, const glm::vec3& lookAt, float fovy)

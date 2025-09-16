@@ -1,7 +1,6 @@
 #pragma once
 
-#include <limits>
-#include <numbers>
+#include "pch.h"
 
 constexpr float Infinity = std::numeric_limits<float>::infinity();
 constexpr float Epsilon = 1e-5f;

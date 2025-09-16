@@ -1,7 +1,7 @@
+#include "pch.h"
+
 #include "Util/progress.h"
 
-#include <algorithm>
-#include <print>
 
 Progress::Progress(size_t total, float step)
         :total_(total), step_(step)

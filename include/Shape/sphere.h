@@ -1,9 +1,9 @@
 #pragma once
 
+#include "pch.h"
+
 #include "Camera/ray.h"
 #include "shape.h"
-
-#include <optional>
 
 struct Sphere final : public Shape {
     constexpr Sphere(const glm::vec3& center, float radius) : center(center), radius(radius) {}

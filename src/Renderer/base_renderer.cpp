@@ -1,11 +1,11 @@
-
+#include "pch.h"
 
 #include "Renderer/base_renderer.h"
 #include "Thread/thread_pool.h"
 #include "Util/progress.h"
 #include "Util/profile.h"
 
-#include <print>
+
 
 void BaseRenderer::render(size_t spp, const std::filesystem::path& path)
 {

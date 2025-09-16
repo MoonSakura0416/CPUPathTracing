@@ -1,10 +1,9 @@
 #pragma once
 
+#include "pch.h"
+
 #include "shape.h"
 #include "triangle.h"
-
-#include <filesystem>
-#include <vector>
 
 class Model final : public Shape{
 public:
