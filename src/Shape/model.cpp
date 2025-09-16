@@ -3,8 +3,6 @@
 #include "Shape/model.h"
 #include "Util/profile.h"
 
-
-
 Model::Model(const std::filesystem::path& path)
 {
     PROFILE("Load model" + path.string())
@@ -43,10 +41,14 @@ Model::Model(const std::filesystem::path& path)
                                     normals[vnIdx.y - 1], normals[vnIdx.z - 1]);
         }
     }
+    build();
 }
 
 std::optional<HitInfo> Model::intersect(const Ray& ray, float tMin, float tMax) const
 {
+    if (!aabb_.hasIntersection(ray, tMin, tMax)) {
+        return std::nullopt;
+    }
     std::optional<HitInfo> closestHit{};
 
     for (auto& triangle : triangles_) {
@@ -57,4 +59,13 @@ std::optional<HitInfo> Model::intersect(const Ray& ray, float tMin, float tMax) 
         }
     }
     return closestHit;
+}
+
+void Model::build()
+{
+    for (const auto& triangle : triangles_) {
+        aabb_.expand(triangle.p0);
+        aabb_.expand(triangle.p1);
+        aabb_.expand(triangle.p2);
+    }
 }

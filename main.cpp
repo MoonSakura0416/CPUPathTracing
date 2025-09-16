@@ -48,5 +48,5 @@ int main()
     film.clear();
 
     SimpleRTRenderer simpleRTRenderer{camera,scene};
-    simpleRTRenderer.render(100, "simple_rt.ppm");
+    simpleRTRenderer.render(128, "simple_rt.ppm");
 }
