@@ -1,4 +1,5 @@
 #include "Shape/model.h"
+#include "Util/profile.h"
 
 #include <print>
 #include <iostream>
@@ -7,6 +8,7 @@
 
 Model::Model(const std::filesystem::path& path)
 {
+    PROFILE("Load model" + path.string())
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
 

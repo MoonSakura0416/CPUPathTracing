@@ -3,11 +3,13 @@
 #include "Renderer/base_renderer.h"
 #include "Thread/thread_pool.h"
 #include "Util/progress.h"
+#include "Util/profile.h"
 
 #include <print>
 
 void BaseRenderer::render(size_t spp, const std::filesystem::path& path)
 {
+    PROFILE("Render " + std::to_string(spp) + " spp to " + path.string())
     size_t   currentSpp = 0, step = 1;
     auto&    film = camera_.getFilm();
     Progress progress{film.getWidth() * film.getHeight() * spp};
@@ -21,7 +23,7 @@ void BaseRenderer::render(size_t spp, const std::filesystem::path& path)
                                        return v ^ (v >> 31);
                                    };
                                    uint64_t seed = mix(baseSeed) ^ mix(x) ^ mix(y) ^
-                                                   mix(currentSpp);  // curSpp=本轮的起始样本号
+                                                   mix(currentSpp);
                                    RNG rng(static_cast<size_t>(seed));
                                    for (size_t i = 0; i < step; i++) {
                                        film.addSample(x, y, renderPixel({x, y}, rng));

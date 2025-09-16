@@ -1,4 +1,5 @@
 #include "Thread/thread_pool.h"
+#include "Util/profile.h"
 
 ThreadPool::ThreadPool(size_t numThreads)
 {
@@ -76,6 +77,7 @@ private:
 void ThreadPool::parallelFor(size_t width, size_t height,
                              const std::function<void(size_t, size_t)>& func)
 {
+    PROFILE(__func__)
     Guard guard{spinlock_};
     for (size_t i = 0; i < width; i++) {
         for (size_t j = 0; j < height; j++) {
