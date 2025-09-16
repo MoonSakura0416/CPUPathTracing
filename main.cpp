@@ -8,11 +8,9 @@
 #include "Util/frame.h"
 #include "Util/rgb.h"
 #include "Util/constants.h"
-#include "Util/rng.h"
-#include "Util/progress.h"
+#include "Renderer/normal_renderer.h"
+#include "Renderer/simple_rt_renderer.h"
 
-#include <print>
-#include <chrono>
 
 inline glm::vec3 sampleCosineHemisphere(float u1, float u2)
 {
@@ -27,7 +25,6 @@ inline glm::vec3 sampleCosineHemisphere(float u1, float u2)
 
 int main()
 {
-    ThreadPool threadpool{};
     Film       film{192 * 4, 108 * 4};
     Camera     camera{film, {-3.6f, 0, 0}, {0, 0, 0}, 45};
 
@@ -45,71 +42,11 @@ int main()
     scene.addShape(sphere, std::make_shared<Material>(glm::vec3{1, 1, 1}, true), {3, 0.5, -2});
     scene.addShape(plane, std::make_shared<Material>(RGB(120, 204, 157)), {0, -0.5, 0});
 
-    int spp = 16;
+    NormalRenderer normalRenderer{camera,scene};
+    normalRenderer.render(1, "normal.ppm");
 
-    Progress progress{film.getWidth() * film.getHeight() * spp};
+    film.clear();
 
-    auto start = std::chrono::high_resolution_clock::now();
-
-    threadpool.parallelFor(
-        film.getWidth(), film.getHeight(), [&, baseSeed = 1337u](size_t x, size_t y) {
-            thread_local RNG  rng;
-            thread_local bool inited = false;
-            if (!inited) {
-                auto          tid = std::hash<std::thread::id>{}(std::this_thread::get_id());
-                std::uint64_t seed = 0x9E3779B97F4A7C15ull ^ static_cast<std::uint64_t>(baseSeed) ^
-                                     (tid + (tid << 6) + (tid >> 2));
-                rng.setSeed(static_cast<size_t>(seed));
-                inited = true;
-            }
-            for (int i = 0; i < spp; ++i) {
-                auto      ray = camera.getRay({x, y}, {rng.uniform(), rng.uniform()});
-                glm::vec3 beta = {1, 1, 1};
-                glm::vec3 color = {0, 0, 0};
-                while (true) {
-                    auto hitInfo = scene.intersect(ray);
-                    if (hitInfo.has_value()) {
-                        color += beta * hitInfo->material->emissive;
-                        beta *= hitInfo->material->albedo;
-
-                        ray.origin = hitInfo->hitPos;
-                        glm::vec3 lightDir;
-                        Frame     frame{hitInfo->normal};
-                        if (hitInfo->material->isSpecular) {
-                            glm::vec3 viewDir = frame.localFromWorld(-ray.direction);
-                            lightDir = {-viewDir.x, viewDir.y, -viewDir.z};
-                            // ray.direction =
-                            //     glm::reflect(ray.direction, hitInfo->normal);
-                        } else {
-                            do {
-                                lightDir = {rng.uniform(), rng.uniform(), rng.uniform()};
-                                lightDir = lightDir * 2.f - 1.f;
-                            } while (glm::length(lightDir) > 1.f);
-                            if (lightDir.y < 0) {
-                                lightDir.y = -lightDir.y;
-                            }
-                            // float     u1 = uni(rng);
-                            // float     u2 = uni(rng);
-                            // glm::vec3 wiLocal = sampleCosineHemisphere(u1, u2);
-                            // glm::vec3 wi = frame.worldFromLocal(wiLocal);
-                            // ray.direction = wi;
-                        }
-                        ray.direction = frame.worldFromLocal(lightDir);
-                    } else {
-                        break;
-                    }
-                }
-                film.addSample(x, y, color);
-                // film.setPixel(x, y, {1, 1, 1});
-            }
-
-            progress.update(spp);
-        });
-
-    threadpool.wait();
-
-    film.save("test4.ppm");
-    auto end = std::chrono::high_resolution_clock::now();
-    auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::println("Time: {}", diff);
+    SimpleRTRenderer simpleRTRenderer{camera,scene};
+    simpleRTRenderer.render(100, "simple_rt.ppm");
 }

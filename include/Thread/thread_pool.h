@@ -34,3 +34,5 @@ private:
     std::queue<std::unique_ptr<Task>> tasks_;
     SpinLock spinlock_{};
 };
+
+inline ThreadPool threadpool{};

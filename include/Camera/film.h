@@ -40,6 +40,12 @@ public:
         pixels_[y * width_ + x].spp++;
     }
 
+    void clear()
+    {
+        pixels_.clear();
+        pixels_.resize(width_ * height_);
+    }
+
 private:
     size_t             width_{0}, height_{0};
     std::vector<Pixel> pixels_;
