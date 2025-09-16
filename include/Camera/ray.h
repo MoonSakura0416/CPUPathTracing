@@ -1,6 +1,6 @@
 #pragma once
 
-#include "material.h"
+#include "Shape/material.h"
 
 #include <glm/glm.hpp>
 #include <memory>

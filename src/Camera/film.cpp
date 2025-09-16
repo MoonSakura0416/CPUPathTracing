@@ -1,5 +1,5 @@
-#include "film.h"
-#include "rgb.h"
+#include "Camera/film.h"
+#include "Util/rgb.h"
 
 #include <fstream>
 

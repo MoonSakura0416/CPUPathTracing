@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ray.h"
+#include "Camera/ray.h"
 #include "shape.h"
 
 #include <optional>

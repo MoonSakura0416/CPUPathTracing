@@ -1,13 +1,13 @@
-#include "thread_pool.h"
-#include "film.h"
-#include "camera.h"
-#include "sphere.h"
-#include "model.h"
-#include "plane.h"
-#include "scene.h"
-#include "frame.h"
-#include "rgb.h"
-#include "constants.h"
+#include "Thread/thread_pool.h"
+#include "Camera/film.h"
+#include "Camera/camera.h"
+#include "Shape/sphere.h"
+#include "Shape/model.h"
+#include "Shape/plane.h"
+#include "Shape/scene.h"
+#include "Util/frame.h"
+#include "Util/rgb.h"
+#include "Util/constants.h"
 
 #include <print>
 #include <chrono>
@@ -50,7 +50,7 @@ int main()
     // std::mt19937                          gen{};
     // std::uniform_real_distribution<float> uniform{0.f, 1.f};
 
-    int spp = 500;
+    int spp = 50;
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -106,7 +106,7 @@ int main()
 
     threadpool.wait();
 
-    film.save("test3.ppm");
+    film.save("test4.ppm");
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::println("Time: {}", diff);

@@ -1,4 +1,4 @@
-#include "ray.h"
+#include "Camera/ray.h"
 
 Ray Ray::transform(const glm::mat4& invModel) const
 {

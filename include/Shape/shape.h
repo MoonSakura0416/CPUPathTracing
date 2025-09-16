@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ray.h"
-#include "constants.h"
+#include "Camera/ray.h"
+#include "Util/constants.h"
 
 #include <optional>
 

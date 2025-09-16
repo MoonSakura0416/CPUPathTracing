@@ -1,4 +1,4 @@
-#include "sphere.h"
+#include "Shape/sphere.h"
 
 std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax) const
 {
@@ -9,15 +9,15 @@ std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax)
     float     b = 2 * glm::dot(co, ray.direction);
     float     h = -b / 2;
     float     c = glm::dot(co, co) - radius * radius;
-    float     discriminant = b * b - 4 * a * c;
+    float     discriminant = h * h - a * c;
     if (discriminant < 0) {
         return std::nullopt;
     }
 
-    float hitT = (-b - std::sqrt(discriminant)) * 0.5 / a;
+    float hitT = (h - std::sqrt(discriminant)) / a;
 
     if (hitT < 0) {
-        hitT = (-b + std::sqrt(discriminant)) * 0.5 / a;
+        hitT = (h + std::sqrt(discriminant)) / a;
     }
 
     if (hitT > tMin && hitT < tMax) {

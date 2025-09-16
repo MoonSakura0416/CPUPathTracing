@@ -1,4 +1,4 @@
-#include "triangle.h"
+#include "Shape/triangle.h"
 
 std::optional<HitInfo> Triangle::intersect(const Ray& ray, float tMin, float tMax) const
 {
