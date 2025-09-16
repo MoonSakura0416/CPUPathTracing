@@ -59,30 +59,49 @@ std::unique_ptr<Task> ThreadPool::getTask()
 
 class ParallelForTask final : public Task {
 public:
-    ParallelForTask(size_t x, size_t y, const std::function<void(size_t, size_t)>& func)
-        : x_(x), y_(y), func_(func)
+    ParallelForTask(size_t x, size_t y, size_t chunkWidth, size_t chunkHeight,
+                    const std::function<void(size_t, size_t)>& func)
+        : x_(x), y_(y), chunkWidth_(chunkWidth), chunkHeight_(chunkHeight), func_(func)
     {
     }
 
     void run() override
     {
-        func_(x_, y_);
+        for (size_t i = 0; i < chunkWidth_; ++i)
+            for (size_t j = 0; j < chunkHeight_; ++j) {
+                func_(x_ + i, y_ + j);
+            }
     }
 
 private:
-    size_t                              x_, y_;
+    size_t                              x_, y_, chunkWidth_, chunkHeight_;
     std::function<void(size_t, size_t)> func_;
 };
 
 void ThreadPool::parallelFor(size_t width, size_t height,
-                             const std::function<void(size_t, size_t)>& func)
+                             const std::function<void(size_t, size_t)>& func, bool complex)
 {
     PROFILE(__func__)
-    Guard guard{spinlock_};
-    for (size_t i = 0; i < width; i++) {
-        for (size_t j = 0; j < height; j++) {
-            ++pendingTasks_;
-            tasks_.push(std::make_unique<ParallelForTask>(i, j, func));
+
+    float chunkWidthFloat = static_cast<float>(width) / std::sqrt(threads_.size());
+    float chunkHeightFloat =
+        static_cast<float>(height) / std::sqrt(threads_.size());
+    if (complex) {
+        chunkWidthFloat /= std::sqrt(16);
+        chunkHeightFloat /= std::sqrt(16);
+    }
+    auto chunkWidth = static_cast<size_t>(std::ceil(chunkWidthFloat));
+    auto chunkHeight = static_cast<size_t>(std::ceil(chunkHeightFloat));
+
+    for (size_t i = 0; i < width; i += chunkWidth) {
+        const size_t currW = std::min(chunkWidth, width - i);
+        for (size_t j = 0; j < height; j += chunkHeight) {
+            const size_t currH = std::min(chunkHeight, height - j);
+            {
+                Guard guard{spinlock_};
+                ++pendingTasks_;
+                tasks_.push(std::make_unique<ParallelForTask>(i, j, currW, currH, func));
+            }
         }
     }
 }

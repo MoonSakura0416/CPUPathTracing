@@ -50,8 +50,3 @@ int main()
     SimpleRTRenderer simpleRTRenderer{camera,scene};
     simpleRTRenderer.render(128, "simple_rt.ppm");
 }
-
-// Release Model
-// Load Model: 27ms
-// Renderer 128 spp: 98642ms
-// parallelFor: 30 - 170ms

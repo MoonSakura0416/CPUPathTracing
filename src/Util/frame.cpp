@@ -1,12 +1,12 @@
 #include "Util/frame.h"
 
-// Frame::Frame(const glm::vec3& normal)
-// {
-//     yAxis_= normal;
-//     glm::vec3 up = abs(normal.y) < 0.99999 ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1);
-//     xAxis_ = glm::normalize(glm::cross(up, normal));
-//     zAxis_ = glm::normalize(glm::cross(xAxis_, yAxis_));
-// }
+Frame::Frame(const glm::vec3& normal)
+{
+    yAxis_= normal;
+    glm::vec3 up = abs(normal.y) < 0.99999 ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1);
+    xAxis_ = glm::normalize(glm::cross(up, normal));
+    zAxis_ = glm::normalize(glm::cross(xAxis_, yAxis_));
+}
 
 static void frisvadTangentZUp(const glm::vec3& n, glm::vec3& t, glm::vec3& b)
 {
@@ -24,16 +24,16 @@ static void frisvadTangentZUp(const glm::vec3& n, glm::vec3& t, glm::vec3& b)
     t = glm::normalize(glm::cross(b, n));
 }
 
-Frame::Frame(const glm::vec3& normal)
-{
-    // Frisvad method: Construct xAxis_ and yAxis_ that are orthogonal to zAxis_
-    glm::vec3 n = glm::normalize(normal);
-    glm::vec3 t, b;
-    frisvadTangentZUp(n, t, b);
-    yAxis_ = n;
-    xAxis_ = t;
-    zAxis_ = glm::cross(xAxis_, yAxis_);
-}
+// Frame::Frame(const glm::vec3& normal)
+// {
+//     // Frisvad method: Construct xAxis_ and yAxis_ that are orthogonal to zAxis_
+//     glm::vec3 n = glm::normalize(normal);
+//     glm::vec3 t, b;
+//     frisvadTangentZUp(n, t, b);
+//     yAxis_ = n;
+//     xAxis_ = t;
+//     zAxis_ = glm::cross(xAxis_, yAxis_);
+// }
 
 glm::vec3 Frame::localFromWorld(const glm::vec3& world) const
 {

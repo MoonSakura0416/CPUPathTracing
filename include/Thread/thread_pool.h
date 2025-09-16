@@ -25,7 +25,8 @@ public:
     void addTask(std::unique_ptr<Task> task);
     std::unique_ptr<Task> getTask();
 
-    void parallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& func);
+    void parallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& func,
+                     bool complex = true);
 
 private:
     std::atomic<bool> alive_ {true};
