@@ -9,11 +9,10 @@
 #include "Util/rgb.h"
 #include "Util/constants.h"
 #include "Util/rng.h"
+#include "Util/progress.h"
 
 #include <print>
 #include <chrono>
-#include <memory>
-#include <random>
 
 inline glm::vec3 sampleCosineHemisphere(float u1, float u2)
 {
@@ -46,12 +45,9 @@ int main()
     scene.addShape(sphere, std::make_shared<Material>(glm::vec3{1, 1, 1}, true), {3, 0.5, -2});
     scene.addShape(plane, std::make_shared<Material>(RGB(120, 204, 157)), {0, -0.5, 0});
 
-    std::atomic<int> count{0};
+    int spp = 16;
 
-    // std::mt19937                          gen{};
-    // std::uniform_real_distribution<float> uniform{0.f, 1.f};
-
-    int spp = 50;
+    Progress progress{film.getWidth() * film.getHeight() * spp};
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -107,11 +103,7 @@ int main()
                 // film.setPixel(x, y, {1, 1, 1});
             }
 
-            ++count;
-            if (count % film.getWidth() == 0) {
-                std::println("{:.2f}",
-                             static_cast<float>(count) / (film.getWidth() * film.getHeight()));
-            }
+            progress.update(spp);
         });
 
     threadpool.wait();
