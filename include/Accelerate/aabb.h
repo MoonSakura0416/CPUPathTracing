@@ -19,6 +19,14 @@ struct  AABB {
         max = glm::max(max, pos);
     }
 
+    [[nodiscard]] glm::vec3 diagonal() const
+    {
+        return max - min;
+    }
+
     glm::vec3 min;
     glm::vec3 max;
+
+
+
 };

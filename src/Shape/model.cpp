@@ -9,7 +9,7 @@ Model::Model(const std::filesystem::path& path)
     PROFILE("Load model" + path.string())
 
     auto result = rapidobj::ParseFile(path, rapidobj::MaterialLibrary::Ignore());
-
+    std::vector<Triangle> triangles;
     for (const auto& shape : result.shapes) {
         size_t indexOffset = 0;
         for (size_t numFaceVertex : shape.mesh.num_face_vertices) {
@@ -40,40 +40,19 @@ Model::Model(const std::filesystem::path& path)
                     glm::vec3 normal2{result.attributes.normals[index.normal_index * 3 + 0],
                                       result.attributes.normals[index.normal_index * 3 + 1],
                                       result.attributes.normals[index.normal_index * 3 + 2]};
-                    triangles_.emplace_back(pos0, pos1, pos2, normal0, normal1, normal2);
+                    triangles.emplace_back(pos0, pos1, pos2, normal0, normal1, normal2);
                 } else {
-                    triangles_.emplace_back(pos0, pos1, pos2);
+                    triangles.emplace_back(pos0, pos1, pos2);
                 }
             }
             indexOffset += numFaceVertex;
         }
     }
-
-    build();
+    bvh_.build(std::move(triangles));
 }
 
 std::optional<HitInfo> Model::intersect(const Ray& ray, float tMin, float tMax) const
 {
-    if (!aabb_.hasIntersection(ray, tMin, tMax)) {
-        return std::nullopt;
-    }
-    std::optional<HitInfo> closestHit{};
-
-    for (auto& triangle : triangles_) {
-        auto hitInfo = triangle.intersect(ray, tMin, tMax);
-        if (hitInfo.has_value()) {
-            tMax = hitInfo->hitT;
-            closestHit = hitInfo;
-        }
-    }
-    return closestHit;
+   return bvh_.intersect(ray, tMin, tMax);
 }
 
-void Model::build()
-{
-    for (const auto& triangle : triangles_) {
-        aabb_.expand(triangle.p0);
-        aabb_.expand(triangle.p1);
-        aabb_.expand(triangle.p2);
-    }
-}

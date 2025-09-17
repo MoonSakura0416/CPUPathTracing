@@ -11,6 +11,7 @@
 #include <atomic>
 #include <utility>
 #include <algorithm>
+#include <ranges>
 #include <vector>
 #include <queue>
 #include <random>
