@@ -4,13 +4,14 @@
 
 void BVH::build(std::vector<Triangle> triangles)
 {
-    root_ = std::make_unique<BVHNode>();
-    root_->triangles = std::move(triangles);
-    root_->updateAABB();
-    recursiveSplit(root_);
+    auto root = std::make_unique<BVHTreeNode>();
+    root->triangles = std::move(triangles);
+    root->updateAABB();
+    recursiveSplit(root);
+    recursiveFlatten(root);
 }
 
-void BVH::recursiveSplit(std::unique_ptr<BVHNode>& node)
+void BVH::recursiveSplit(std::unique_ptr<BVHTreeNode>& node)
 {
     if (node->triangles.size() <= 4) {
         return;
@@ -27,7 +28,7 @@ void BVH::recursiveSplit(std::unique_ptr<BVHNode>& node)
         return c < mid;
     };
     auto [midIt, last] = std::ranges::partition(tris, pred);
-    auto first  = std::ranges::begin(tris);
+    auto first = std::ranges::begin(tris);
     if (midIt == first || midIt == last) {
         auto nth = tris.begin() + tris.size() / 2;
         auto cmp = [axis](const Triangle& a, const Triangle& b) {
@@ -37,16 +38,15 @@ void BVH::recursiveSplit(std::unique_ptr<BVHNode>& node)
         };
         std::ranges::nth_element(tris, nth, cmp);
         midIt = nth;
+        last = std::ranges::end(tris);
     }
 
-    node->left = std::make_unique<BVHNode>();
-    node->right = std::make_unique<BVHNode>();
+    node->left = std::make_unique<BVHTreeNode>();
+    node->right = std::make_unique<BVHTreeNode>();
 
-    node->left->triangles.assign(std::make_move_iterator(first),
-                                 std::make_move_iterator(midIt));
+    node->left->triangles.assign(std::make_move_iterator(first), std::make_move_iterator(midIt));
 
-    node->right->triangles.assign(std::make_move_iterator(midIt),
-                                  std::make_move_iterator(last));
+    node->right->triangles.assign(std::make_move_iterator(midIt), std::make_move_iterator(last));
 
     node->triangles = {};
 
@@ -57,35 +57,58 @@ void BVH::recursiveSplit(std::unique_ptr<BVHNode>& node)
     recursiveSplit(node->right);
 }
 
+size_t BVH::recursiveFlatten(const std::unique_ptr<BVHTreeNode>& node)
+{
+    const BVHNode bvhNode{node->aabb, 0, static_cast<int>(node->triangles.size())};
+    const auto    idx = nodes_.size();  // Current node index
+    nodes_.push_back(bvhNode);
+
+    if (bvhNode.triCount == 0) {
+        recursiveFlatten(node->left);
+        nodes_[idx].childIndex = recursiveFlatten(node->right);
+    } else {
+        nodes_[idx].triStart = triangles_.size();
+        triangles_.insert(triangles_.end(), node->triangles.begin(), node->triangles.end());
+    }
+    return idx;
+}
+
 std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) const
 {
     std::optional<HitInfo> closestHit;
-    recursiveIntersect(root_, ray, tMin, tMax, closestHit);
-    return closestHit;
-}
 
-void BVH::recursiveIntersect(const std::unique_ptr<BVHNode>& node, const Ray& ray, float tMin,
-                             float tMax, std::optional<HitInfo>& closestHit) const
-{
-    if (!node)
-        return;
+    std::array<int, 64> stack{};
+    auto                ptr = stack.begin();
+    size_t              currentIndex = 0;
+    while (true) {
+        auto& node = nodes_[currentIndex];
 
-    if (!node->aabb.hasIntersection(ray, tMin, tMax)) {
-        return;
-    }
-
-    const bool isLeaf = (!node->left && !node->right);
-    if (isLeaf) {
-        for (const auto& triangle : node->triangles) {
-            auto hitInfo = triangle.intersect(ray, tMin, tMax);
-            if (hitInfo.has_value()) {
-                tMax = hitInfo->hitT;
-                closestHit = hitInfo;
+        if (!node.aabb.hasIntersection(ray, tMin, tMax)) {
+            if (ptr == stack.begin()) {
+                break;
             }
+            currentIndex = *(--ptr);
+            continue;
         }
-    } else {
-        recursiveIntersect(node->left, ray, tMin, tMax, closestHit);
-        const float newTMax = closestHit ? closestHit->hitT : tMax;
-        recursiveIntersect(node->right, ray, tMin, newTMax, closestHit);
+
+        if (node.triCount == 0) {
+            currentIndex++;
+            *(ptr++) = node.childIndex;
+        } else {
+            auto triIter = triangles_.begin() + node.triStart;
+            for (size_t i = 0; i < node.triCount; i++) {
+                auto hitInfo = triIter->intersect(ray, tMin, tMax);
+                ++triIter;
+                if (hitInfo.has_value()) {
+                    tMax = hitInfo->hitT;
+                    closestHit = hitInfo;
+                }
+            }
+            if (ptr == stack.begin()) {
+                break;
+            }
+            currentIndex = *(--ptr);
+        }
     }
+    return closestHit;
 }

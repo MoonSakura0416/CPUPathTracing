@@ -12,6 +12,7 @@
 #include <utility>
 #include <algorithm>
 #include <ranges>
+#include <array>
 #include <vector>
 #include <queue>
 #include <random>
@@ -26,3 +27,4 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
+#include <string_view>

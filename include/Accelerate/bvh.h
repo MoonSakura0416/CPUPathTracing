@@ -5,7 +5,7 @@
 #include "aabb.h"
 #include "Shape/triangle.h"
 
-struct BVHNode {
+struct BVHTreeNode {
     void updateAABB()
     {
         aabb = AABB{};
@@ -18,11 +18,20 @@ struct BVHNode {
 
     AABB                     aabb{};
     std::vector<Triangle>    triangles;
-    std::unique_ptr<BVHNode> left{nullptr};
-    std::unique_ptr<BVHNode> right{nullptr};
+    std::unique_ptr<BVHTreeNode> left{nullptr};
+    std::unique_ptr<BVHTreeNode> right{nullptr};
 };
 
-class BVH : public Shape {
+struct alignas(32) BVHNode {
+    AABB aabb{};
+    union {
+        int childIndex; // index of right child, 0 means leaf node
+        int triStart;   // start index of triangles in leaf node
+    };
+    int triCount{0};   // number of triangles in leaf node
+};
+
+class BVH final : public Shape {
 public:
     void build(std::vector<Triangle> triangles);
 
@@ -30,11 +39,11 @@ public:
                                                    float tMax) const override;
 
 private:
-    void recursiveSplit(std::unique_ptr<BVHNode>& node);
+    void recursiveSplit(std::unique_ptr<BVHTreeNode>& node);
 
-    void recursiveIntersect(const std::unique_ptr<BVHNode>& node, const Ray& ray, float tMin,
-                            float tMax, std::optional<HitInfo>& closestHit) const;
+    size_t recursiveFlatten(const std::unique_ptr<BVHTreeNode>& node);
 
 private:
-    std::unique_ptr<BVHNode> root_;
+    std::vector<BVHNode> nodes_;
+    std::vector<Triangle> triangles_;
 };
