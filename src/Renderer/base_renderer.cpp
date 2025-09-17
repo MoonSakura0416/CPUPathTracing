@@ -34,7 +34,7 @@ void BaseRenderer::render(size_t spp, const std::filesystem::path& path)
 
         currentSpp += step;
         size_t remaining = spp - currentSpp;
-        step = remaining > step ? std::min<size_t>(currentSpp, 32) : remaining;
+        step = std::min({remaining, currentSpp, static_cast<size_t>(32)});
 
         film.save(path);
         std::println("{} spp has been saved to {}", currentSpp, path.string());
