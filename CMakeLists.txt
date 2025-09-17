@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+add_subdirectory(thirdparty/rapidobj)
+
 # Default build type
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "" FORCE)
@@ -26,6 +28,7 @@ add_executable(raytracer main.cpp ${APP_SOURCES})
 
 target_link_libraries(raytracer PRIVATE
         glm::glm
+        rapidobj
         #assimp::assimp
 )
 
@@ -40,7 +43,7 @@ target_include_directories(raytracer PUBLIC
 )
 
 target_precompile_headers(raytracer PRIVATE
- "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.h"
 )
 
 # ========== Copy resources ==========
