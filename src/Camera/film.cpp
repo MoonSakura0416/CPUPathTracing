@@ -16,7 +16,7 @@ Film::Film(size_t width, size_t height) : width_(width), height_(height)
 
 void Film::save(const std::filesystem::path& path) const
 {
-    PROFILE("Save to " + path.string())
+    //PROFILE("Save to " + path.string())
     std::ofstream file(path, std::ios::binary);
     file << "P6\n" << width_ << ' ' << height_ << "\n255\n";
 

@@ -81,7 +81,7 @@ private:
 void ThreadPool::parallelFor(size_t width, size_t height,
                              const std::function<void(size_t, size_t)>& func, bool complex)
 {
-    PROFILE(__func__)
+    //PROFILE(__func__)
 
     float chunkWidthFloat = static_cast<float>(width) / std::sqrt(threads_.size());
     float chunkHeightFloat =
@@ -96,8 +96,8 @@ void ThreadPool::parallelFor(size_t width, size_t height,
     for (size_t i = 0; i < width; i += chunkWidth) {
         const size_t currW = std::min(chunkWidth, width - i);
         for (size_t j = 0; j < height; j += chunkHeight) {
-            const size_t currH = std::min(chunkHeight, height - j);
             {
+                const size_t currH = std::min(chunkHeight, height - j);
                 Guard guard{spinlock_};
                 ++pendingTasks_;
                 tasks_.push(std::make_unique<ParallelForTask>(i, j, currW, currH, func));
