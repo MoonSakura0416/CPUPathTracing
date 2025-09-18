@@ -5,7 +5,6 @@
 #include "Shape/model.h"
 #include "Shape/plane.h"
 #include "Shape/scene.h"
-#include "Util/frame.h"
 #include "Util/rgb.h"
 #include "Util/constants.h"
 #include "Renderer/normal_renderer.h"
