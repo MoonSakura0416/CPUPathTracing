@@ -3,7 +3,7 @@
 
 void BVH::build(std::vector<Triangle> triangles)
 {
-    auto root = std::make_unique<BVHTreeNode>();
+    auto root = nodeAllocator_.allocate();
     root->triangles = std::move(triangles);
     root->depth = 1;
     root->updateAABB();
@@ -21,13 +21,16 @@ void BVH::build(std::vector<Triangle> triangles)
                  labelWidth);
     std::println("{0:<{2}} {1}", "Max Depth:", state.maxDepth, labelWidth);
 
+    nodes_.reserve(state.totalNodeCount);
+    triangles_.reserve(totalTriCount);
     recursiveFlatten(root);
 }
 
-void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& state)
+void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
 {
     state.totalNodeCount++;
-    if (node->triangles.size() <= 4 || node->depth >= 64) {
+    size_t totalTriCount = node->triangles.size();
+    if (totalTriCount <= 4 || node->depth >= 64) {
         state.addLeaf(node);
         return;
     }
@@ -38,11 +41,12 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
     constexpr float intersectCost = 1.0f;   // the cost of handling triangle intersection
 
     float minCost = Infinity;
+    AABB minLeftAABB{}, minRightAABB{};
     size_t bestAxis = -1;
     float bestSplitPos = 0.0f;
 
     const float parentSurfaceArea = node->aabb.surfaceArea();
-    const float noSplitCost = intersectCost * node->triangles.size();
+    const float noSplitCost = intersectCost * totalTriCount;
 
     for (size_t axis = 0; axis < 3; ++axis) {
         const float axisRange = node->aabb.diagonal()[axis];
@@ -59,7 +63,7 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
             int binIdx = static_cast<int>(numBins * ((c - node->aabb.min[axis]) / axisRange));
             binIdx = std::clamp(binIdx, 0, numBins - 1);
 
-            bins[binIdx].triCount++; //
+            bins[binIdx].triCount++;
             bins[binIdx].aabb.expand(tri.p0);
             bins[binIdx].aabb.expand(tri.p1);
             bins[binIdx].aabb.expand(tri.p2);
@@ -67,12 +71,14 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
 
         // Evaluate each possible split plane (between boxes）
         std::array<float, numBins - 1> rightCost{};
-        AABB rightAABB{};
+        std::array<AABB, numBins - 1> rightAABBs{};
+        AABB cumulativeRightAABB{};
         int rightTriCount = 0;
         for (int i = numBins - 1; i > 0; --i) {
             rightTriCount += bins[i].triCount;
-            rightAABB.expand(bins[i].aabb);
-            rightCost[i - 1] = rightAABB.surfaceArea() * rightTriCount;
+            cumulativeRightAABB.expand(bins[i].aabb);
+            rightCost[i - 1] = cumulativeRightAABB.surfaceArea() * rightTriCount;
+            rightAABBs[i - 1] = cumulativeRightAABB;
         }
 
         AABB leftAABB{};
@@ -81,14 +87,19 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
             leftTriCount += bins[i].triCount;
             leftAABB.expand(bins[i].aabb);
 
-            if (leftTriCount == 0 || rightCost[i] == 0) continue;
+            if (leftTriCount == 0 || leftTriCount == totalTriCount) continue;
 
-            float cost = traversalCost + (leftAABB.surfaceArea() * leftTriCount + rightCost[i]) / parentSurfaceArea;
+            const float currentRightCost = rightCost[i];
+            const AABB& currentRightAABB = rightAABBs[i];
+
+            float cost = traversalCost + (leftAABB.surfaceArea() * leftTriCount + currentRightCost) / parentSurfaceArea;
 
             if (cost < minCost) {
                 minCost = cost;
                 bestAxis = axis;
                 bestSplitPos = node->aabb.min[axis] + (i + 1) * (axisRange / numBins);
+                minLeftAABB = leftAABB;
+                minRightAABB = currentRightAABB;
             }
         }
     }
@@ -112,7 +123,8 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
     auto first = std::ranges::begin(tris);
 
     // Alternative solution (when the SAH selected segmentation point causes all triangles to be on one side)
-    if (midIt == first || midIt == last) {
+    bool fallback = (midIt == first || midIt == last);
+    if (fallback) {
         // Return to equal segmentation
         auto nth = tris.begin() + tris.size() / 2;
         auto cmp = [bestAxis](const Triangle& a, const Triangle& b) {
@@ -128,8 +140,8 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
 
     node->splitAxis = bestAxis;
 
-    node->left = std::make_unique<BVHTreeNode>();
-    node->right = std::make_unique<BVHTreeNode>();
+    node->left = nodeAllocator_.allocate();
+    node->right = nodeAllocator_.allocate();
 
     node->left->triangles.assign(std::make_move_iterator(first), std::make_move_iterator(midIt));
     node->left->depth = node->depth + 1;
@@ -137,14 +149,19 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
     node->right->depth = node->depth + 1;
     node->triangles = {};
 
-    node->left->updateAABB();
-    node->right->updateAABB();
+    if (fallback) {
+        node->left->updateAABB();
+        node->right->updateAABB();
+    } else {
+        node->left->aabb = minLeftAABB;
+        node->right->aabb = minRightAABB;
+    }
 
     recursiveSplit(node->left, state);
     recursiveSplit(node->right, state);
 }
 
-size_t BVH::recursiveFlatten(const std::unique_ptr<BVHTreeNode>& node)
+size_t BVH::recursiveFlatten(const BVHTreeNode* node)
 {
     const BVHNode bvhNode{node->aabb, 0, static_cast<uint16_t>(node->triangles.size()),
                           static_cast<uint8_t>(node->depth), static_cast<uint8_t>(node->splitAxis)};

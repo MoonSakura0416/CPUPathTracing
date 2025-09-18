@@ -16,12 +16,12 @@ struct BVHTreeNode {
         }
     }
 
-    AABB                         aabb{};
-    std::vector<Triangle>        triangles;
-    std::unique_ptr<BVHTreeNode> left{nullptr};
-    std::unique_ptr<BVHTreeNode> right{nullptr};
-    size_t                       depth{0};
-    size_t                       splitAxis{0};
+    AABB                  aabb{};
+    std::vector<Triangle> triangles;
+    BVHTreeNode*          left{nullptr};
+    BVHTreeNode*          right{nullptr};
+    size_t                depth{0};
+    size_t                splitAxis{0};
 };
 
 struct alignas(32) BVHNode {
@@ -37,7 +37,7 @@ struct alignas(32) BVHNode {
 
 struct BVHState {
 
-    void addLeaf(const std::unique_ptr<BVHTreeNode>& node)
+    void addLeaf(const BVHTreeNode* node)
     {
         leafCount ++;
         maxLeafTriCount = glm::max(maxLeafTriCount, node->triangles.size());
@@ -50,6 +50,26 @@ struct BVHState {
     size_t maxDepth{0};
 };
 
+class BVHNodeAllocator {
+public:
+    BVHNodeAllocator() : ptr_(BlockSize) {}
+
+    BVHTreeNode* allocate() {
+        if (ptr_ == BlockSize) {
+            nodeBlocks_.push_back(std::make_unique<BVHTreeNode[]>(BlockSize));
+            ptr_ = 0;
+        }
+        // Return a raw pointer to the next available node in the current block and advance the pointer.
+        return &nodeBlocks_.back()[ptr_++];
+    }
+
+private:
+
+    static constexpr size_t BlockSize = 4096;
+    size_t ptr_;
+    std::vector<std::unique_ptr<BVHTreeNode[]>> nodeBlocks_;
+};
+
 class BVH final : public Shape {
 public:
     void build(std::vector<Triangle> triangles);
@@ -58,11 +78,12 @@ public:
                                                    float tMax) const override;
 
 private:
-    void recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& state);
+    void recursiveSplit(BVHTreeNode* node, BVHState& state);
 
-    size_t recursiveFlatten(const std::unique_ptr<BVHTreeNode>& node);
+    size_t recursiveFlatten(const BVHTreeNode* node);
 
 private:
+    BVHNodeAllocator nodeAllocator_;
     std::vector<BVHNode> nodes_;
     std::vector<Triangle> triangles_;
 };
