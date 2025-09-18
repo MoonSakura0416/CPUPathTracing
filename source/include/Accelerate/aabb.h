@@ -31,7 +31,13 @@ struct  AABB {
 
     [[nodiscard]] float surfaceArea() const
     {
+        // if aabb is default constructed, return 0
+        if (min.x > max.x || min.y > max.y || min.z > max.z) {
+            return 0.f;
+        }
+
         auto diag = diagonal();
+
         return 2.f * (diag.x * diag.y + diag.y * diag.z + diag.z * diag.x);
     }
 

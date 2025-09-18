@@ -149,13 +149,8 @@ void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
     node->right->depth = node->depth + 1;
     node->triangles = {};
 
-    if (fallback) {
-        node->left->updateAABB();
-        node->right->updateAABB();
-    } else {
-        node->left->aabb = minLeftAABB;
-        node->right->aabb = minRightAABB;
-    }
+    node->left->updateAABB();
+    node->right->updateAABB();
 
     recursiveSplit(node->left, state);
     recursiveSplit(node->right, state);
