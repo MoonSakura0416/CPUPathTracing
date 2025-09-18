@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "Shape/material.h"
+#include "Util/debug_macro.h"
 
 
 struct Ray {
@@ -24,5 +25,9 @@ struct HitInfo {
     glm::vec3 hitPos;
     glm::vec3 normal;
     std::shared_ptr<Material> material;
+
+    DEBUG_LINE(size_t aabbTestCount {0})
+    DEBUG_LINE(size_t triTestCount  {0})
+    DEBUG_LINE(size_t aabbTestDepth {0})
 };
 

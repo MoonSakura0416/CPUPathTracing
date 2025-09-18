@@ -12,6 +12,7 @@ void BaseRenderer::render(size_t spp, const std::filesystem::path& path)
     PROFILE("Render " + std::to_string(spp) + " spp to " + path.string())
     size_t   currentSpp = 0, step = 1;
     auto&    film = camera_.getFilm();
+    film.clear();
     Progress progress{film.getWidth() * film.getHeight() * spp};
     while (currentSpp < spp) {
         threadpool.parallelFor(

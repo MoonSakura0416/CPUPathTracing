@@ -1,24 +1,42 @@
-#include <algorithm>
-
 #include "Accelerate/bvh.h"
+#include "Util/debug_macro.h"
 
 void BVH::build(std::vector<Triangle> triangles)
 {
     auto root = std::make_unique<BVHTreeNode>();
     root->triangles = std::move(triangles);
+    root->depth = 1;
     root->updateAABB();
-    recursiveSplit(root);
+    BVHState state{};
+    size_t   totalTriCount = root->triangles.size();
+    recursiveSplit(root, state);
+
+    constexpr int labelWidth = 22;
+    std::println("{0:<{2}} {1}", "Total Node:", state.totalNodeCount, labelWidth);
+    std::println("{0:<{2}} {1}", "Leaf Node:", state.leafCount, labelWidth);
+    std::println("{0:<{2}} {1}", "Total Triangles:", totalTriCount, labelWidth);
+    std::println("{0:<{2}} {1}", "Max Leaf Triangles:", state.maxLeafTriCount, labelWidth);
+    std::println("{0:<{2}} {1:.2f}",
+                 "Mean Leaf Triangles:", static_cast<float>(totalTriCount) / state.leafCount,
+                 labelWidth);
+    std::println("{0:<{2}} {1}", "Max Depth:", state.maxDepth, labelWidth);
+
     recursiveFlatten(root);
 }
 
-void BVH::recursiveSplit(std::unique_ptr<BVHTreeNode>& node)
+void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& state)
 {
-    if (node->triangles.size() <= 4) {
+    state.totalNodeCount++;
+    if (node->triangles.size() <= 4 || node->depth >= 64) {
+        state.addLeaf(node);
         return;
     }
 
-    const auto  diag = node->aabb.diagonal();
-    const int   axis = (diag.x >= diag.y && diag.x >= diag.z) ? 0 : (diag.y >= diag.z) ? 1 : 2;
+    const auto   diag = node->aabb.diagonal();
+    const size_t axis = (diag.x >= diag.y && diag.x >= diag.z) ? 0
+                        : (diag.y >= diag.z)                   ? 1
+                                                               : 2;  // longest axis
+    node->splitAxis = axis;
     const float mid = node->aabb.min[axis] + diag[axis] * 0.5f;
 
     auto& tris = node->triangles;
@@ -45,21 +63,22 @@ void BVH::recursiveSplit(std::unique_ptr<BVHTreeNode>& node)
     node->right = std::make_unique<BVHTreeNode>();
 
     node->left->triangles.assign(std::make_move_iterator(first), std::make_move_iterator(midIt));
-
+    node->left->depth = node->depth + 1;
     node->right->triangles.assign(std::make_move_iterator(midIt), std::make_move_iterator(last));
-
+    node->right->depth = node->depth + 1;
     node->triangles = {};
 
     node->left->updateAABB();
     node->right->updateAABB();
 
-    recursiveSplit(node->left);
-    recursiveSplit(node->right);
+    recursiveSplit(node->left, state);
+    recursiveSplit(node->right, state);
 }
 
 size_t BVH::recursiveFlatten(const std::unique_ptr<BVHTreeNode>& node)
 {
-    const BVHNode bvhNode{node->aabb, 0, static_cast<int>(node->triangles.size())};
+    const BVHNode bvhNode{node->aabb, 0, static_cast<uint16_t>(node->triangles.size()),
+                          static_cast<uint8_t>(node->depth), static_cast<uint8_t>(node->splitAxis)};
     const auto    idx = nodes_.size();  // Current node index
     nodes_.push_back(bvhNode);
 
@@ -77,12 +96,16 @@ std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) co
 {
     std::optional<HitInfo> closestHit;
 
+    DEBUG_LINE(size_t aabbTestCount = 0, triTestCount = 0)
+
+    glm::bvec3 dirIsNeg{ray.direction.x < 0, ray.direction.y < 0, ray.direction.z < 0};
+
     std::array<int, 64> stack{};
     auto                ptr = stack.begin();
     size_t              currentIndex = 0;
     while (true) {
         auto& node = nodes_[currentIndex];
-
+        DEBUG_LINE(++aabbTestCount)
         if (!node.aabb.hasIntersection(ray, tMin, tMax)) {
             if (ptr == stack.begin()) {
                 break;
@@ -91,17 +114,24 @@ std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) co
             continue;
         }
 
-        if (node.triCount == 0) {
-            currentIndex++;
-            *(ptr++) = node.childIndex;
-        } else {
+        if (node.triCount == 0) {  // internal node
+            if (dirIsNeg[node.splitAxis]) {
+                *(ptr++) = currentIndex + 1;
+                currentIndex = node.childIndex;
+            } else {
+                currentIndex++;
+                *(ptr++) = node.childIndex;
+            }
+        } else {  // leaf node
             auto triIter = triangles_.begin() + node.triStart;
+            DEBUG_LINE(triTestCount += node.triCount)
             for (size_t i = 0; i < node.triCount; i++) {
                 auto hitInfo = triIter->intersect(ray, tMin, tMax);
                 ++triIter;
                 if (hitInfo.has_value()) {
                     tMax = hitInfo->hitT;
                     closestHit = hitInfo;
+                    DEBUG_LINE(closestHit->aabbTestDepth = node.depth)
                 }
             }
             if (ptr == stack.begin()) {
@@ -109,6 +139,10 @@ std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) co
             }
             currentIndex = *(--ptr);
         }
+    }
+    if (closestHit.has_value()) {
+        DEBUG_LINE(closestHit->aabbTestCount = aabbTestCount)
+        DEBUG_LINE(closestHit->triTestCount = triTestCount)
     }
     return closestHit;
 }

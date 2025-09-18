@@ -38,6 +38,8 @@ target_compile_definitions(raytracer PUBLIC
         GLM_FORCE_RADIANS
 )
 
+target_compile_definitions(raytracer PUBLIC WITH_DEBUG_INFO)
+
 target_include_directories(raytracer PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
