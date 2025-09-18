@@ -32,32 +32,101 @@ void BVH::recursiveSplit(const std::unique_ptr<BVHTreeNode>& node, BVHState& sta
         return;
     }
 
-    const auto   diag = node->aabb.diagonal();
-    const size_t axis = (diag.x >= diag.y && diag.x >= diag.z) ? 0
-                        : (diag.y >= diag.z)                   ? 1
-                                                               : 2;  // longest axis
-    node->splitAxis = axis;
-    const float mid = node->aabb.min[axis] + diag[axis] * 0.5f;
+    // --- SAH start of segmentation logic ---
+    constexpr int numBins = 12;
+    constexpr float traversalCost = 0.125f; // The cost of traversing nodes
+    constexpr float intersectCost = 1.0f;   // the cost of handling triangle intersection
 
+    float minCost = Infinity;
+    size_t bestAxis = -1;
+    float bestSplitPos = 0.0f;
+
+    const float parentSurfaceArea = node->aabb.surfaceArea();
+    const float noSplitCost = intersectCost * node->triangles.size();
+
+    for (size_t axis = 0; axis < 3; ++axis) {
+        const float axisRange = node->aabb.diagonal()[axis];
+        if (axisRange < 1e-6f) continue;
+
+        struct Bin {
+            AABB aabb{};
+            int triCount {0};
+        };
+        std::array<Bin, numBins> bins;
+
+        for (const auto& tri : node->triangles) {
+            const float c = (tri.p0[axis] + tri.p1[axis] + tri.p2[axis]) * (1.0f / 3.0f);
+            int binIdx = static_cast<int>(numBins * ((c - node->aabb.min[axis]) / axisRange));
+            binIdx = std::clamp(binIdx, 0, numBins - 1);
+
+            bins[binIdx].triCount++; //
+            bins[binIdx].aabb.expand(tri.p0);
+            bins[binIdx].aabb.expand(tri.p1);
+            bins[binIdx].aabb.expand(tri.p2);
+        }
+
+        // Evaluate each possible split plane (between boxes）
+        std::array<float, numBins - 1> rightCost{};
+        AABB rightAABB{};
+        int rightTriCount = 0;
+        for (int i = numBins - 1; i > 0; --i) {
+            rightTriCount += bins[i].triCount;
+            rightAABB.expand(bins[i].aabb);
+            rightCost[i - 1] = rightAABB.surfaceArea() * rightTriCount;
+        }
+
+        AABB leftAABB{};
+        int leftTriCount = 0;
+        for (int i = 0; i < numBins - 1; ++i) {
+            leftTriCount += bins[i].triCount;
+            leftAABB.expand(bins[i].aabb);
+
+            if (leftTriCount == 0 || rightCost[i] == 0) continue;
+
+            float cost = traversalCost + (leftAABB.surfaceArea() * leftTriCount + rightCost[i]) / parentSurfaceArea;
+
+            if (cost < minCost) {
+                minCost = cost;
+                bestAxis = axis;
+                bestSplitPos = node->aabb.min[axis] + (i + 1) * (axisRange / numBins);
+            }
+        }
+    }
+
+    // If no good split found, make this a leaf node
+    if (minCost >= noSplitCost) {
+        state.addLeaf(node);
+        return;
+    }
+
+    // --- SAH end of segmentation logic ---
+
+    // Use the best split axes and positions found to divide the triangle
     auto& tris = node->triangles;
-
-    auto pred = [axis, mid](const Triangle& t) {
-        const float c = (t.p0[axis] + t.p1[axis] + t.p2[axis]) * (1.0f / 3.0f);
-        return c < mid;
+    auto pred = [bestAxis, bestSplitPos](const Triangle& t) {
+        const float c = (t.p0[bestAxis] + t.p1[bestAxis] + t.p2[bestAxis]) * (1.0f / 3.0f);
+        return c < bestSplitPos;
     };
+
     auto [midIt, last] = std::ranges::partition(tris, pred);
     auto first = std::ranges::begin(tris);
+
+    // Alternative solution (when the SAH selected segmentation point causes all triangles to be on one side)
     if (midIt == first || midIt == last) {
+        // Return to equal segmentation
         auto nth = tris.begin() + tris.size() / 2;
-        auto cmp = [axis](const Triangle& a, const Triangle& b) {
-            const float ca = (a.p0[axis] + a.p1[axis] + a.p2[axis]) * (1.0f / 3.0f);
-            const float cb = (b.p0[axis] + b.p1[axis] + b.p2[axis]) * (1.0f / 3.0f);
+        auto cmp = [bestAxis](const Triangle& a, const Triangle& b) {
+            const float ca = (a.p0[bestAxis] + a.p1[bestAxis] + a.p2[bestAxis]) * (1.0f / 3.0f);
+            const float cb = (b.p0[bestAxis] + b.p1[bestAxis] + b.p2[bestAxis]) * (1.0f / 3.0f);
             return ca < cb;
         };
         std::ranges::nth_element(tris, nth, cmp);
         midIt = nth;
         last = std::ranges::end(tris);
     }
+
+
+    node->splitAxis = bestAxis;
 
     node->left = std::make_unique<BVHTreeNode>();
     node->right = std::make_unique<BVHTreeNode>();

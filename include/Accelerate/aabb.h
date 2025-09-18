@@ -19,9 +19,20 @@ struct  AABB {
         max = glm::max(max, pos);
     }
 
+    void expand(const AABB& other) {
+        min = glm::min(min, other.min);
+        max = glm::max(max, other.max);
+    }
+
     [[nodiscard]] glm::vec3 diagonal() const
     {
         return max - min;
+    }
+
+    [[nodiscard]] float surfaceArea() const
+    {
+        auto diag = diagonal();
+        return 2.f * (diag.x * diag.y + diag.y * diag.z + diag.z * diag.x);
     }
 
     glm::vec3 min;
