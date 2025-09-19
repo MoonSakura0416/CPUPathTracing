@@ -10,9 +10,7 @@ struct BVHTreeNode {
     {
         aabb = AABB{};
         for (const auto& tri : triangles) {
-            aabb.expand(tri.p0);
-            aabb.expand(tri.p1);
-            aabb.expand(tri.p2);
+            aabb.expand(tri.getBound());
         }
     }
 
@@ -31,7 +29,6 @@ struct alignas(32) BVHNode {
         int triStart;   // start index of triangles in leaf node
     };
     uint16_t triCount{0};   // number of triangles in leaf node
-    uint8_t  depth{0};      // depth of the node in the tree
     uint8_t  splitAxis{0};  // 0:x, 1:y, 2:z
 };
 
@@ -76,6 +73,11 @@ public:
 
     [[nodiscard]] std::optional<HitInfo> intersect(const Ray& ray, float tMin,
                                                    float tMax) const override;
+
+    [[nodiscard]] AABB getBound() const override
+    {
+        return nodes_[0].aabb;
+    }
 
 private:
     void recursiveSplit(BVHTreeNode* node, BVHState& state);

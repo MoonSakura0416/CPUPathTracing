@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-class RGB Lerp(RGB a, RGB b, float t);
+struct  RGB Lerp(RGB a, RGB b, float t);
 
 struct RGB {
     constexpr RGB(int r, int g, int b) : r(r), g(g), b(b) {}

@@ -18,6 +18,11 @@ public:
     [[nodiscard]] std::optional<HitInfo> intersect(const Ray& ray, float tMin,
                                                    float tMax) const override;
 
+    [[nodiscard]] AABB getBound() const override
+    {
+        return bvh_.getBound();
+    }
+
 private:
     BVH bvh_    ;
 };

@@ -22,6 +22,15 @@ struct Triangle final : public Shape {
 
     std::optional<HitInfo> intersect(const Ray& ray, float tMin, float tMax) const override;
 
+    [[nodiscard]] AABB getBound() const override
+    {
+        AABB bound{};
+        bound.expand(p0);
+        bound.expand(p1);
+        bound.expand(p2);
+        return bound;
+    }
+
     glm::vec3 p0, p1, p2;
     glm::vec3 n0, n1, n2;
 };

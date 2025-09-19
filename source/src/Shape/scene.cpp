@@ -4,28 +4,7 @@
 
 std::optional<HitInfo> Scene::intersect(const Ray& ray, float tMin, float tMax) const
 {
-    std::optional<HitInfo>         closestHit{};
-    const ShapeInstance* closestInstance{nullptr};
-    for (const auto& instance : shape_) {
-        // Transform the ray from world space to object space
-        Ray  localRay = ray.transform(instance.inverseModelMatrix);
-        auto hitInfo = instance.shape->intersect(localRay, tMin, tMax);
-        if (hitInfo.has_value()) {
-            closestHit = hitInfo;
-            tMax = hitInfo->hitT;
-            closestInstance = &instance;
-        }
-    }
-
-    if (closestInstance) {
-        closestHit->hitPos = closestInstance->modelMatrix * glm::vec4(closestHit->hitPos, 1.0f);
-        closestHit->normal =
-            glm::normalize(glm::vec3{glm::transpose(closestInstance->inverseModelMatrix) *
-                                     glm::vec4(closestHit->normal, 0.0f)});
-        closestHit->material = closestInstance->material;
-    }
-
-    return closestHit;
+    return bvh_.intersect(ray, tMin, tMax);
 }
 
 void Scene::addShape(std::shared_ptr<Shape> shape, std::shared_ptr<Material> material,

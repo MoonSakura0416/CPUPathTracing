@@ -9,6 +9,8 @@
 struct Ray {
     glm::vec3 origin;
     glm::vec3 direction;
+    DEBUG_LINE(mutable size_t aabbTestCount {0})
+    DEBUG_LINE(mutable size_t triTestCount  {0})
 
     /** Computes the point along the ray at parameter t.
      */
@@ -25,9 +27,8 @@ struct HitInfo {
     glm::vec3 hitPos;
     glm::vec3 normal;
     std::shared_ptr<Material> material;
-
-    DEBUG_LINE(size_t aabbTestCount {0})
-    DEBUG_LINE(size_t triTestCount  {0})
-    DEBUG_LINE(size_t aabbTestDepth {0})
 };
+
+
+
 

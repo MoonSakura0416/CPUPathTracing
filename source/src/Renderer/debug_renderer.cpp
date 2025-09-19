@@ -5,11 +5,10 @@ glm::vec3 AABBTestCountRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& 
 {
 #ifdef WITH_DEBUG_INFO
     auto ray = camera_.getRay(pixelCoord);
-    auto hitInfo = scene_.intersect(ray);
-    if (hitInfo.has_value()) {
-        return RGB::GenerateHeatMapRGB(hitInfo->aabbTestCount / 150.f);
-    }
-    return {};
+    scene_.intersect(ray);
+
+    return RGB::GenerateHeatMapRGB(ray.aabbTestCount / 150.f);
+
 #else
 #endif
 }
@@ -18,24 +17,10 @@ glm::vec3 TriTestCountRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& r
 {
 #ifdef WITH_DEBUG_INFO
     auto ray = camera_.getRay(pixelCoord);
-    auto hitInfo = scene_.intersect(ray);
-    if (hitInfo.has_value()) {
-        return RGB::GenerateHeatMapRGB(hitInfo->triTestCount / 12.f);
-    }
-    return {};
-#else
-#endif
-}
+    scene_.intersect(ray);
 
-glm::vec3 AABBTestDepthRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rng)
-{
-#ifdef WITH_DEBUG_INFO
-    auto ray = camera_.getRay(pixelCoord);
-    auto hitInfo = scene_.intersect(ray);
-    if (hitInfo.has_value()) {
-        return RGB::GenerateHeatMapRGB(hitInfo->aabbTestDepth / 64.f);
-    }
-    return {};
+    return RGB::GenerateHeatMapRGB(ray.triTestCount / 12.f);
+
 #else
 #endif
 }

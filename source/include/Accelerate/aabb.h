@@ -41,6 +41,22 @@ struct  AABB {
         return 2.f * (diag.x * diag.y + diag.y * diag.z + diag.z * diag.x);
     }
 
+    // idx from 0 to 7 to get the 8 corners of the AABB
+    [[nodiscard]] glm::vec3 getConer(const size_t idx) const
+    {
+        auto corner = max;
+        if (idx & 1) corner.x = min.x;
+        if (idx & 2) corner.y = min.y;
+        if (idx & 4) corner.z = min.z;
+        return corner;
+    }
+
+    // Check if the AABB is valid (not default constructed)
+    [[nodiscard]] bool isValid() const
+    {
+        return min.x <= max.x && min.y <= max.y && min.z <= max.z;
+    }
+
     glm::vec3 min;
     glm::vec3 max;
 

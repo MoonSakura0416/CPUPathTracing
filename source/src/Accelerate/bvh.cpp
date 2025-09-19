@@ -41,7 +41,7 @@ void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
     constexpr float intersectCost = 1.0f;   // the cost of handling triangle intersection
 
     float minCost = Infinity;
-    AABB minLeftAABB{}, minRightAABB{};
+    //AABB minLeftAABB{}, minRightAABB{};
     size_t bestAxis = -1;
     float bestSplitPos = 0.0f;
 
@@ -90,7 +90,7 @@ void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
             if (leftTriCount == 0 || leftTriCount == totalTriCount) continue;
 
             const float currentRightCost = rightCost[i];
-            const AABB& currentRightAABB = rightAABBs[i];
+            //const AABB& currentRightAABB = rightAABBs[i];
 
             float cost = traversalCost + (leftAABB.surfaceArea() * leftTriCount + currentRightCost) / parentSurfaceArea;
 
@@ -98,8 +98,8 @@ void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
                 minCost = cost;
                 bestAxis = axis;
                 bestSplitPos = node->aabb.min[axis] + (i + 1) * (axisRange / numBins);
-                minLeftAABB = leftAABB;
-                minRightAABB = currentRightAABB;
+                //minLeftAABB = leftAABB;
+                //minRightAABB = currentRightAABB;
             }
         }
     }
@@ -159,7 +159,7 @@ void BVH::recursiveSplit(BVHTreeNode* node, BVHState& state)
 size_t BVH::recursiveFlatten(const BVHTreeNode* node)
 {
     const BVHNode bvhNode{node->aabb, 0, static_cast<uint16_t>(node->triangles.size()),
-                          static_cast<uint8_t>(node->depth), static_cast<uint8_t>(node->splitAxis)};
+                           static_cast<uint8_t>(node->splitAxis)};
     const auto    idx = nodes_.size();  // Current node index
     nodes_.push_back(bvhNode);
 
@@ -212,7 +212,6 @@ std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) co
                 if (hitInfo.has_value()) {
                     tMax = hitInfo->hitT;
                     closestHit = hitInfo;
-                    DEBUG_LINE(closestHit->aabbTestDepth = node.depth)
                 }
             }
             if (ptr == stack.begin()) {
@@ -221,9 +220,8 @@ std::optional<HitInfo> BVH::intersect(const Ray& ray, float tMin, float tMax) co
             currentIndex = *(--ptr);
         }
     }
-    if (closestHit.has_value()) {
-        DEBUG_LINE(closestHit->aabbTestCount = aabbTestCount)
-        DEBUG_LINE(closestHit->triTestCount = triTestCount)
-    }
+        DEBUG_LINE(ray.aabbTestCount = aabbTestCount)
+        DEBUG_LINE(ray.triTestCount = triTestCount)
+
     return closestHit;
 }
