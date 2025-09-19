@@ -20,10 +20,10 @@ glm::vec3 SimpleRTRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rng)
     glm::vec3 color = {0, 0, 0};
     size_t maxBounces = 32;
     while (maxBounces--) {
-        if (glm::any(glm::isnan(ray.origin)) || glm::any(glm::isinf(ray.origin)) ||
-            glm::any(glm::isnan(ray.direction)) || glm::any(glm::isinf(ray.direction))) {
-            break;
-        }
+        // if (glm::any(glm::isnan(ray.origin)) || glm::any(glm::isinf(ray.origin)) ||
+        //     glm::any(glm::isnan(ray.direction)) || glm::any(glm::isinf(ray.direction))) {
+        //     break;
+        // }
         auto hitInfo = scene_.intersect(ray);
         if (hitInfo.has_value()) {
             color += beta * hitInfo->material->emissive;
