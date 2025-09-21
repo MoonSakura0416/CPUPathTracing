@@ -10,6 +10,7 @@
 #include "Renderer/normal_renderer.h"
 #include "Renderer/simple_rt_renderer.h"
 #include "Renderer/debug_renderer.h"
+#include "Renderer/path_tracing_renderer.h"
 
 
 int main()
@@ -65,6 +66,10 @@ int main()
     TriTestCountRenderer triTestCountRenderer{camera, scene};
     triTestCountRenderer.render(1, "ttc.ppm");
 
-    SimpleRTRenderer simpleRTRenderer{camera,scene};
-    simpleRTRenderer.render(128, "test.ppm");
+    // SimpleRTRenderer simpleRTRenderer{camera,scene};
+    // simpleRTRenderer.render(128, "RT_test.ppm");
+
+    PathTracingRenderer pathTracingRenderer{camera,scene};
+    pathTracingRenderer.render(128, "PT_test4.ppm");
+
 }

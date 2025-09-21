@@ -1,5 +1,6 @@
 #include "Renderer/simple_rt_renderer.h"
 #include "Util/frame.h"
+#include "Sample/spherical.h"
 
 // #define GLM_ENABLE_EXPERIMENTAL
 // #include <glm/gtx/component_wise.hpp>
@@ -28,7 +29,7 @@ glm::vec3 SimpleRTRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rng)
         if (hitInfo.has_value()) {
             color += beta * hitInfo->material->emissive;
             beta *= hitInfo->material->albedo;
-            ray.origin    = hitInfo->hitPos + 1e-4f * hitInfo->normal;
+            ray.origin    = hitInfo->hitPos;
             glm::vec3 lightDir;
             Frame     frame{hitInfo->normal};
             if (hitInfo->material->isSpecular) {
@@ -36,13 +37,7 @@ glm::vec3 SimpleRTRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rng)
                 // lightDir = {-viewDir.x, viewDir.y, -viewDir.z};
                 lightDir = glm::reflect(ray.direction, hitInfo->normal);
             } else {
-                do {
-                    lightDir = {rng.uniform(), rng.uniform(), rng.uniform()};
-                    lightDir = lightDir * 2.f - 1.f;
-                } while (glm::length(lightDir) > 1.f);
-                if (lightDir.y < 0) {
-                    lightDir.y = -lightDir.y;
-                }
+                lightDir = UniformSampleHemisphere(rng);
                 lightDir = frame.worldFromLocal(lightDir);
             }
             lightDir = glm::normalize(lightDir);
