@@ -1,6 +1,5 @@
 #include "Renderer/path_tracing_renderer.h"
 #include "Util/frame.h"
-#include "Sample/spherical.h"
 
 glm::vec3 PathTracingRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rng)
 {
@@ -20,17 +19,18 @@ glm::vec3 PathTracingRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rn
         // BRDF = albedo / PI
         // PDF = cos_theta / PI
         // final_term = (albedo / PI) * cos_theta * (1 / PDF) = albedo
-        beta *= hitInfo->material->albedo;
 
-        Frame frame(normalize(hitInfo->normal));
-        glm::vec3 wiWorld;
+        Frame frame(hitInfo->normal);
+        glm::vec3 lightDir;
 
-        if (hitInfo->material->isSpecular) {
-            wiWorld = glm::reflect(ray.direction, hitInfo->normal);
+        if (hitInfo->material) {
+            glm::vec3 localWi = frame.localFromWorld(-ray.direction);
+            lightDir = hitInfo->material->sampleBRDF(localWi, beta, rng);
         } else {
-            glm::vec3 wiLocal = CosineSampleHemisphere({rng.uniform(), rng.uniform()});
-            wiWorld = frame.worldFromLocal(wiLocal);
+            break;
         }
+
+        lightDir = frame.worldFromLocal(lightDir);
 
         if (bounce >= rrStart) {
             float q = std::clamp(std::max({beta.x, beta.y, beta.z}), 0.05f, 0.95f);
@@ -39,7 +39,7 @@ glm::vec3 PathTracingRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rn
         }
 
         ray.origin    = hitInfo->hitPos;
-        ray.direction = wiWorld;
+        ray.direction = lightDir;
 
         if (beta.x < 1e-6f && beta.y < 1e-6f && beta.z < 1e-6f) break;
     }

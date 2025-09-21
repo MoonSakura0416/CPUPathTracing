@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "Shape/material.h"
+#include "Material/material.h"
 #include "Util/debug_macro.h"
 
 

@@ -3,7 +3,7 @@
 #include "pch.h"
 
 #include "shape.h"
-#include "material.h"
+#include "Material/material.h"
 #include "Accelerate/bvh_scene.h"
 
 class Scene final : public Shape {
