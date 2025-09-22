@@ -13,6 +13,7 @@
 #include "Material/specular.h"
 #include "Material/dielectric.h"
 #include "Material/ground.h"
+#include "Material/conductor.h"
 
 int main()
 {
@@ -30,6 +31,12 @@ int main()
             {0,0.5,i*2}, {0.8,0.8,0.8});
     }
 
+    for (int i = -3; i <=3; i++) {
+        glm::vec3 c = RGB::GenerateHeatMapRGB((i+3.f)/6.f);
+        scene.addShape(sphere, std::make_shared<Conductor>(glm::vec3{2.f - c *2.f}, glm::vec3{2.f+c*3.f}),
+            {0,2.5,i*2}, {0.8,0.8,0.8});
+    }
+
     scene.addShape(plane, std::make_shared<Ground>(RGB(120, 204, 157)), {0, -0.5, 0});
     auto lightMaterial = std::make_shared<Diffuse>(glm::vec3{1,1,1});
     lightMaterial->setEmission({0.95,0.95,1.f});
@@ -45,5 +52,5 @@ int main()
     triTestCountRenderer.render(1, "ttc.ppm");
 
     PathTracingRenderer pathTracingRenderer{camera, scene};
-    pathTracingRenderer.render(128, "PT_test.ppm");
+    pathTracingRenderer.render(128, "PT_test2.ppm");
 }
