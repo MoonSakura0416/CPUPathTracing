@@ -42,7 +42,7 @@ glm::vec3 Dielectric::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, g
         return {-wi.x, wi.y, -wi.z};
     } else {
         // Refract
-        beta *= albedoT_;
+        beta *= albedoT_ / (etaRatio * etaRatio);
         return {(-wi / etaRatio) + (cosThetaT / etaRatio - cosThetaI) * n};
     }
 }

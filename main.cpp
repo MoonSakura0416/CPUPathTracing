@@ -37,6 +37,9 @@ int main()
             {0,2.5,i*2}, {0.8,0.8,0.8});
     }
 
+    scene.addShape(model, std::make_shared<Dielectric>(1.8, RGB{128, 191, 131}), {-5,0.4,1.5}, {2,2,2});
+    scene.addShape(model, std::make_shared<Conductor>(glm::vec3{0.1, 1.2, 1.8}, glm::vec3{5,2.5,2}), {-5,0.4,-1.5}, {2,2,2});
+
     scene.addShape(plane, std::make_shared<Ground>(RGB(120, 204, 157)), {0, -0.5, 0});
     auto lightMaterial = std::make_shared<Diffuse>(glm::vec3{1,1,1});
     lightMaterial->setEmission({0.95,0.95,1.f});
