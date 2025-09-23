@@ -10,7 +10,7 @@ public:
     Dielectric(float ior, const glm::vec3& albedoR, const glm::vec3& albedoT)
         :ior_(ior), albedoR_(albedoR), albedoT_(albedoT){}
 
-    glm::vec3 sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, glm::vec3& beta,
+    std::optional<BSDFSample> sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
                          const RNG& rng) override;
 
 private:

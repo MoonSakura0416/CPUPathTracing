@@ -1,7 +1,7 @@
 #include "Material/conductor.h"
 #include "Util/complex.h"
 
-glm::vec3 Conductor::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, glm::vec3& beta,
+std::optional<BSDFSample> Conductor::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
                          const RNG& rng)
 {
     const float cosThetaI = glm::clamp(wi.y, 0.f, 1.f);
@@ -39,6 +39,8 @@ glm::vec3 Conductor::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, gl
         // Fr = 0.5 * (|r_s|^2 + |r_p|^2)
         fr[i] = 0.5f * (sqrMag(r_s) + sqrMag(r_p));
     }
-    beta *= fr;
-    return {-wi.x, wi.y, -wi.z};
+    const glm::vec3 lightDir = {-wi.x, wi.y, -wi.z};
+    constexpr float pdf = 1.f;
+    const glm::vec3 bsdf = fr / std::abs(lightDir.y);
+    return BSDFSample{bsdf, pdf, lightDir};
 }

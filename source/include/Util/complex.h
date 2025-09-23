@@ -2,8 +2,6 @@
 
 #include "pch.h"
 
-#include <cmath>
-
 struct Complex {
     float real;
     float imag;

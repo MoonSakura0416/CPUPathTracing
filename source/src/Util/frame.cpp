@@ -2,7 +2,7 @@
 
 Frame::Frame(const glm::vec3& normal)
 {
-    yAxis_= normal;
+    yAxis_= glm::normalize(normal);
     glm::vec3 up = glm::abs(normal.y) < 0.99999 ? glm::vec3(0, 1, 0) : glm::vec3(0, 0, 1);
     xAxis_ = glm::normalize(glm::cross(up, normal));
     zAxis_ = glm::normalize(glm::cross(xAxis_, yAxis_));

@@ -55,5 +55,5 @@ int main()
     triTestCountRenderer.render(1, "ttc.ppm");
 
     PathTracingRenderer pathTracingRenderer{camera, scene};
-    pathTracingRenderer.render(128, "PT_test2.ppm");
+    pathTracingRenderer.render(128, "PT_test1.ppm");
 }

@@ -1,9 +1,11 @@
 #include "Material/specular.h"
 #include "Sample/spherical.h"
 
-
-glm::vec3 Specular::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, glm::vec3& beta, const RNG& rng)
+std::optional<BSDFSample> Specular::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
+                                               const RNG& rng)
 {
-    beta *= albedo_;
-    return {-wi.x, wi.y, -wi.z};
+    const glm::vec3 lightDir = {-wi.x, wi.y, -wi.z};
+    constexpr float pdf = 1.f;
+    const glm::vec3 bsdf = albedo_ / std::abs(lightDir.y);
+    return BSDFSample{bsdf, pdf, lightDir};
 }

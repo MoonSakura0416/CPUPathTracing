@@ -19,6 +19,10 @@ inline glm::vec3 CosineSampleHemisphere(const glm::vec2 &u) {
     return { r * glm::cos(phi), glm::sqrt(1 - r * r), r * glm::sin(phi) };
 }
 
+inline float CosineSampleHemispherePDF(const glm::vec3 &v) {
+    return v.y > 0.0f ? (v.y / Pi) : 0.0f;
+}
+
 inline glm::vec3 UniformSampleHemisphere(const RNG &rng) {
     glm::vec3 result;
     do {

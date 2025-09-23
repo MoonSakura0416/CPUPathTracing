@@ -25,7 +25,10 @@ glm::vec3 PathTracingRenderer::renderPixel(const glm::ivec2& pixelCoord, RNG& rn
 
         if (hitInfo->material) {
             glm::vec3 localWi = frame.localFromWorld(-ray.direction);
-            lightDir = hitInfo->material->sampleBSDF(hitInfo->hitPos, localWi, beta, rng);
+            auto bsdfSample = hitInfo->material->sampleBSDF(hitInfo->hitPos, localWi,rng);
+            if (!bsdfSample) break;
+            beta *= bsdfSample->bsdf * std::abs(bsdfSample->lightDir.y) / bsdfSample->pdf;
+            lightDir = bsdfSample->lightDir;
         } else {
             break;
         }

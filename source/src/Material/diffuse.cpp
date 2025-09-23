@@ -2,10 +2,11 @@
 
 #include "Sample/spherical.h"
 
-
-glm::vec3 Diffuse::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, glm::vec3& beta,
-                              const RNG& rng)
+std::optional<BSDFSample> Diffuse::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
+                                              const RNG& rng)
 {
-    beta *= albedo_;
-    return CosineSampleHemisphere({rng.uniform(), rng.uniform()});
+    const glm::vec3 lightDir = CosineSampleHemisphere({rng.uniform(), rng.uniform()});
+    const float     pdf = CosineSampleHemispherePDF(lightDir);
+    const glm::vec3 bsdf = albedo_ / Pi;
+    return BSDFSample{bsdf, pdf, lightDir};
 }

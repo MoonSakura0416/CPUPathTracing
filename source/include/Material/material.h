@@ -4,12 +4,18 @@
 
 #include "Util/rng.h"
 
+struct BSDFSample {
+    glm::vec3 bsdf;
+    float     pdf;
+    glm::vec3 lightDir;
+};
+
 class Material {
 public:
     virtual ~Material() = default;
 
-    virtual glm::vec3 sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi, glm::vec3& beta,
-                                 const RNG& rng) = 0;
+    virtual std::optional<BSDFSample> sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
+                                                 const RNG& rng) = 0;
 
     void setEmission(const glm::vec3& emission)
     {
