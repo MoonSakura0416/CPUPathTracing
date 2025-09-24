@@ -45,12 +45,12 @@ inline constexpr Complex operator/(Complex lhs, float rhs) {
     return { lhs.real / rhs, lhs.imag / rhs };
 }
 
-inline  float norm(Complex z) {
-    return std::sqrt(z.real * z.real + z.imag * z.imag);
+inline constexpr float norm(Complex z) {
+    return (z.real * z.real + z.imag * z.imag);
 }
 
 inline Complex sqrt(Complex z) {
-    float r = norm(z);
+    const float r = norm(z);
     float real = std::sqrt((r + z.real) * 0.5f);
     float imag = std::copysign(std::sqrt((r - z.real) * 0.5f), z.imag);
     return { real, imag };

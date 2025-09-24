@@ -7,10 +7,10 @@ std::optional<BSDFSample> Conductor::sampleBSDF(const glm::vec3& hitPos, const g
     const float cosThetaI = glm::clamp(wi.y, 0.f, 1.f);
     const float sin2ThetaI = 1.f - cosThetaI * cosThetaI;
 
-    auto sqrMag = [](Complex z) -> float {
-        // |z|^2 = real^2 + imag^2
-        return z.real * z.real + z.imag * z.imag;
-    };
+    // auto sqrMag = [](Complex z) -> float {
+    //     // |z|^2 = real^2 + imag^2
+    //     return z.real * z.real + z.imag * z.imag;
+    // };
 
     glm::vec3 fr(0.0f);
 
@@ -37,7 +37,7 @@ std::optional<BSDFSample> Conductor::sampleBSDF(const glm::vec3& hitPos, const g
         const Complex r_p = r_p_num / r_p_den;
 
         // Fr = 0.5 * (|r_s|^2 + |r_p|^2)
-        fr[i] = 0.5f * (sqrMag(r_s) + sqrMag(r_p));
+        fr[i] = 0.5f * (norm(r_s) + norm(r_p));
     }
     const glm::vec3 lightDir = {-wi.x, wi.y, -wi.z};
     constexpr float pdf = 1.f;
