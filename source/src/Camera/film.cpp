@@ -25,6 +25,9 @@ void Film::save(const std::filesystem::path& path) const
         width_, height_,
         [&](size_t x, size_t y) {
             auto [color, spp] = getPixel(x, y);
+            if (spp == 0) {
+                return;
+            }
             RGB    rgb{color / static_cast<float>(spp)};
             size_t index = (y * width_ + x) * 3;
             buffer[index] = static_cast<uint8_t>(rgb.r);

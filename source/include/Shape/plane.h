@@ -2,7 +2,7 @@
 
 #include "shape.h"
 
-struct Plane final : public Shape {
+struct Plane final : Shape {
     Plane(const glm::vec3& point, const glm::vec3& normal)
         : point(point), normal(glm::normalize(normal)) {
     }

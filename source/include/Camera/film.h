@@ -34,6 +34,9 @@ public:
 
     void addSample(size_t x, size_t y, const glm::vec3& color)
     {
+        if (glm::any(glm::isnan(color))) {
+            return;
+        }
         pixels_[y * width_ + x].color += color;
         pixels_[y * width_ + x].spp++;
     }
