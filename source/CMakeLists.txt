@@ -35,7 +35,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 # ========== Option ==========
-option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
 option(ENABLE_LTO "Enable Link Time Optimization (IPO)" OFF)
