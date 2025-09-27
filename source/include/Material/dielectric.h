@@ -25,3 +25,31 @@ private:
     glm::vec3  albedoT_{};  // transmittance
     Microfacet microfacet_;
 };
+
+inline float FresnelDielectric(float etaRatio, float cosThetaI, float& cosThetaT)
+{
+    cosThetaI = glm::clamp(cosThetaI, 0.0f, 1.0f);
+
+    // Snell's law: sin^2(theta_t) = sin^2(theta_i) / eta^2
+    const float sin2I = glm::max(0.0f, 1.0f - cosThetaI * cosThetaI);
+    const float sin2T = sin2I * (etaRatio * etaRatio);
+
+    // Handle total internal reflection
+    if (sin2T >= 1.0f) {
+        cosThetaT = 0.0f;
+        return 1.0f;
+    }
+
+    cosThetaT = glm::sqrt(glm::max(0.0f, 1.0f - sin2T));
+
+    // Fresnel reflectance for s- and p-polarized light
+    float rsNum = etaRatio * cosThetaI - cosThetaT;
+    float rsDen = etaRatio * cosThetaI + cosThetaT;
+    float rpNum = cosThetaI - etaRatio * cosThetaT;
+    float rpDen = cosThetaI + etaRatio * cosThetaT;
+
+    float rs = (rsNum / rsDen) * (rsNum / rsDen);
+    float rp = (rpNum / rpDen) * (rpNum / rpDen);
+
+    return 0.5f * (rs + rp);
+}

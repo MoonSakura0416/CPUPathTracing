@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-struct  RGB Lerp(RGB a, RGB b, float t);
+struct RGB Lerp(RGB a, RGB b, float t);
 
 struct RGB {
     constexpr RGB(int r, int g, int b) : r(r), g(g), b(b) {}
@@ -17,7 +17,7 @@ struct RGB {
     static RGB GenerateHeatMapRGB(float t)
     {
         t = std::clamp(t, 0.0f, 1.0f);
-        //if (t < 0.0f || t > 1.0f) { return {255, 0, 0}; }
+        // if (t < 0.0f || t > 1.0f) { return {255, 0, 0}; }
 
         // std::array<RGB, 25> colorPallet{
         //     RGB{68, 1, 84},    RGB{71, 17, 100},  RGB{72, 31, 112},
@@ -37,35 +37,21 @@ struct RGB {
         // };
 
         std::array<RGB, 25> colorPallet{
-            RGB{  0,   0, 128},  // Deep Blue
-            RGB{  0,  32, 160},
-            RGB{  0,  64, 192},
-            RGB{  0,  96, 224},
-            RGB{  0, 128, 255},  // Bright Blue
+            RGB{0, 0, 128},  // Deep Blue
+            RGB{0, 32, 160},    RGB{0, 64, 192},   RGB{0, 96, 224},
+            RGB{0, 128, 255},  // Bright Blue
 
-            RGB{ 32, 160, 224},
-            RGB{ 64, 192, 192},
-            RGB{ 96, 208, 160},
-            RGB{128, 224, 128},
-            RGB{160, 240, 96},   // Green-Yellow transition
+            RGB{32, 160, 224},  RGB{64, 192, 192}, RGB{96, 208, 160},
+            RGB{128, 224, 128}, RGB{160, 240, 96},  // Green-Yellow transition
 
-            RGB{192, 255, 64},
-            RGB{208, 240, 48},
-            RGB{224, 224, 32},
-            RGB{240, 208, 24},
-            RGB{255, 192, 16},   // Bright Yellow
+            RGB{192, 255, 64},  RGB{208, 240, 48}, RGB{224, 224, 32},
+            RGB{240, 208, 24},  RGB{255, 192, 16},  // Bright Yellow
 
-            RGB{255, 160,  32},
-            RGB{255, 128,  48},
-            RGB{255,  96,  64},
-            RGB{255,  64,  80},
-            RGB{255,  32,  96},  // Orange Red
+            RGB{255, 160, 32},  RGB{255, 128, 48}, RGB{255, 96, 64},
+            RGB{255, 64, 80},   RGB{255, 32, 96},  // Orange Red
 
-            RGB{255,   0, 112},
-            RGB{240,   0,  96},
-            RGB{224,   0,  80},
-            RGB{208,   0,  64},
-            RGB{192,   0,  48},  // Crimson Red
+            RGB{255, 0, 112},   RGB{240, 0, 96},   RGB{224, 0, 80},
+            RGB{208, 0, 64},    RGB{192, 0, 48},  // Crimson Red
         };
 
         if (t == 1.0f) {
@@ -74,7 +60,7 @@ struct RGB {
 
         // Set index in [0, size-1)
         float indexFloat = t * (colorPallet.size() - 1);
-        auto index = static_cast<size_t>(glm::floor(indexFloat));
+        auto  index = static_cast<size_t>(glm::floor(indexFloat));
         float fraction = glm::fract(indexFloat);
 
         return Lerp(colorPallet[index], colorPallet[index + 1], fraction);

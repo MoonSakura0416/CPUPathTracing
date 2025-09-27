@@ -1,6 +1,7 @@
 #include "Shape/quad.h"
 
-std::optional<HitInfo> Quad::intersect(const Ray& ray, float tMin, float tMax) const {
+std::optional<HitInfo> Quad::intersect(const Ray& ray, float tMin, float tMax) const
+{
     // Calculate the intersection with the plane containing the quad (using the plane formula)
     float hitT = glm::dot(p0 - ray.origin, normal) / glm::dot(ray.direction, normal);
 
@@ -11,11 +12,11 @@ std::optional<HitInfo> Quad::intersect(const Ray& ray, float tMin, float tMax) c
 
         // Check if the hit point is inside the quad (u, v are the barycentric coordinates)
         glm::vec3 v0 = hitPos - p0;
-        float dot00 = glm::dot(v1, v1);
-        float dot01 = glm::dot(v1, v2);
-        float dot02 = glm::dot(v1, v0);
-        float dot11 = glm::dot(v2, v2);
-        float dot12 = glm::dot(v2, v0);
+        float     dot00 = glm::dot(v1, v1);
+        float     dot01 = glm::dot(v1, v2);
+        float     dot02 = glm::dot(v1, v0);
+        float     dot11 = glm::dot(v2, v2);
+        float     dot12 = glm::dot(v2, v0);
 
         float invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
         float u = (dot11 * dot02 - dot01 * dot12) * invDenom;

@@ -6,14 +6,15 @@
 
 Model::Model(const std::filesystem::path& path)
 {
-     PROFILE("Load model " + path.string())
+    PROFILE("Load model " + path.string())
 
     auto result = rapidobj::ParseFile(path, rapidobj::MaterialLibrary::Ignore());
 
     size_t triEstimate = 0;
     for (const auto& shape : result.shapes)
         for (size_t nfv : shape.mesh.num_face_vertices)
-            if (nfv == 3) ++triEstimate;
+            if (nfv == 3)
+                ++triEstimate;
 
     std::vector<Triangle> triangles;
     triangles.reserve(triEstimate);
@@ -22,9 +23,7 @@ Model::Model(const std::filesystem::path& path)
         using std::isfinite;
         return isfinite(v.x) && isfinite(v.y) && isfinite(v.z);
     };
-    auto nonZero = [](const glm::vec3& v, float eps2 = 1e-20f) {
-        return glm::dot(v, v) > eps2;
-    };
+    auto nonZero = [](const glm::vec3& v, float eps2 = 1e-20f) { return glm::dot(v, v) > eps2; };
     auto readPos = [&](int idx) -> glm::vec3 {
         const float* p = result.attributes.positions.data() + idx * 3;
         return {p[0], p[1], p[2]};
@@ -37,7 +36,7 @@ Model::Model(const std::filesystem::path& path)
     size_t fallbackNormals = 0;
 
     for (const auto& shape : result.shapes) {
-        size_t indexOffset = 0;
+        size_t      indexOffset = 0;
         const auto& indices = shape.mesh.indices;
 
         for (size_t nfv : shape.mesh.num_face_vertices) {
@@ -58,9 +57,8 @@ Model::Model(const std::filesystem::path& path)
                     glm::vec3 n1 = readNrm(i1.normal_index);
                     glm::vec3 n2 = readNrm(i2.normal_index);
 
-                    const bool normalsOk =
-                        isFinite3(n0) && isFinite3(n1) && isFinite3(n2) &&
-                        nonZero(n0)    && nonZero(n1)    && nonZero(n2);
+                    const bool normalsOk = isFinite3(n0) && isFinite3(n1) && isFinite3(n2) &&
+                                           nonZero(n0) && nonZero(n1) && nonZero(n2);
 
                     if (normalsOk) {
                         triangles.emplace_back(p0, p1, p2, n0, n1, n2);
@@ -77,13 +75,12 @@ Model::Model(const std::filesystem::path& path)
         }
     }
 
-    //std::println("fallbackNormals = {}", fallbackNormals);
+    // std::println("fallbackNormals = {}", fallbackNormals);
 
     bvh_.build(std::move(triangles));
 }
 
 std::optional<HitInfo> Model::intersect(const Ray& ray, float tMin, float tMax) const
 {
-   return bvh_.intersect(ray, tMin, tMax);
+    return bvh_.intersect(ray, tMin, tMax);
 }
-

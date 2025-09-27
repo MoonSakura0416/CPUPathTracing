@@ -13,8 +13,7 @@ struct ShapeInstance {
         AABB transformedAABB{};
         for (size_t i = 0; i < 8; ++i) {
             glm::vec3 corner = aabb.getConer(i);
-            glm::vec3 transformedCorner =
-                glm::vec3(modelMatrix * glm::vec4(corner, 1.f));
+            glm::vec3 transformedCorner = glm::vec3(modelMatrix * glm::vec4(corner, 1.f));
             transformedAABB.expand(transformedCorner);
         }
         aabb = transformedAABB;
@@ -38,29 +37,28 @@ struct SceneBVHTreeNode {
         }
     }
 
-    AABB                  aabb{};
+    AABB                       aabb{};
     std::vector<ShapeInstance> instances;
     SceneBVHTreeNode*          left{nullptr};
     SceneBVHTreeNode*          right{nullptr};
-    size_t                depth{0};
-    size_t                splitAxis{0};
+    size_t                     depth{0};
+    size_t                     splitAxis{0};
 };
 
 struct alignas(32) SceneBVHNode {
     AABB aabb{};
     union {
-        int childIndex; // index of right child, 0 means leaf node
-        int instanceStart;   // start index of ShapeInstances in leaf node
+        int childIndex;     // index of right child, 0 means leaf node
+        int instanceStart;  // start index of ShapeInstances in leaf node
     };
-    uint16_t instanceCount{0};   // number of ShapeInstances in leaf node
-    uint8_t  splitAxis{0};  // 0:x, 1:y, 2:z
+    uint16_t instanceCount{0};  // number of ShapeInstances in leaf node
+    uint8_t  splitAxis{0};      // 0:x, 1:y, 2:z
 };
 
 struct SceneBVHState {
-
     void addLeaf(const SceneBVHTreeNode* node)
     {
-        leafCount ++;
+        leafCount++;
         maxLeafTriCount = glm::max(maxLeafTriCount, node->instances.size());
         maxDepth = glm::max(maxDepth, node->depth);
     }
@@ -75,19 +73,20 @@ class SceneBVHNodeAllocator {
 public:
     SceneBVHNodeAllocator() : ptr_(BlockSize) {}
 
-    SceneBVHTreeNode* allocate() {
+    SceneBVHTreeNode* allocate()
+    {
         if (ptr_ == BlockSize) {
             nodeBlocks_.push_back(std::make_unique<SceneBVHTreeNode[]>(BlockSize));
             ptr_ = 0;
         }
-        // Return a raw pointer to the next available node in the current block and advance the pointer.
+        // Return a raw pointer to the next available node in the current block and advance the
+        // pointer.
         return &nodeBlocks_.back()[ptr_++];
     }
 
 private:
-
-    static constexpr size_t BlockSize = 4096;
-    size_t ptr_;
+    static constexpr size_t                          BlockSize = 4096;
+    size_t                                           ptr_;
     std::vector<std::unique_ptr<SceneBVHTreeNode[]>> nodeBlocks_;
 };
 
@@ -109,8 +108,8 @@ private:
     size_t recursiveFlatten(const SceneBVHTreeNode* node);
 
 private:
-    SceneBVHNodeAllocator nodeAllocator_;
-    std::vector<SceneBVHNode> nodes_;
+    SceneBVHNodeAllocator      nodeAllocator_;
+    std::vector<SceneBVHNode>  nodes_;
     std::vector<ShapeInstance> instances_;
-    std::vector<ShapeInstance> infinityInstances_; // Shapes with infinite bounds (e.g., planes)
+    std::vector<ShapeInstance> infinityInstances_;  // Shapes with infinite bounds (e.g., planes)
 };

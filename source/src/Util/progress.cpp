@@ -2,9 +2,7 @@
 
 #include "Util/progress.h"
 
-
-Progress::Progress(size_t total, float step)
-        :total_(total), step_(step)
+Progress::Progress(size_t total, float step) : total_(total), step_(step)
 {
     std::println("0%");
 }

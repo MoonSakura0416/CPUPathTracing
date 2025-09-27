@@ -5,4 +5,3 @@
 DEFINE_RENDERER(AABBTestCount)
 
 DEFINE_RENDERER(TriTestCount)
-

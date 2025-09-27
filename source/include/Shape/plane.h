@@ -4,7 +4,8 @@
 
 struct Plane final : Shape {
     Plane(const glm::vec3& point, const glm::vec3& normal)
-        : point(point), normal(glm::normalize(normal)) {
+        : point(point), normal(glm::normalize(normal))
+    {
     }
 
     [[nodiscard]] std::optional<HitInfo> intersect(const Ray& ray, float tMin,

@@ -3,8 +3,8 @@
 #include "shape.h"
 
 struct Quad final : Shape {
-    Quad(const glm::vec3& p0, const glm::vec3& v1, const glm::vec3& v2)
-        : p0(p0), v1(v1), v2(v2) {
+    Quad(const glm::vec3& p0, const glm::vec3& v1, const glm::vec3& v2) : p0(p0), v1(v1), v2(v2)
+    {
         // Calculate the normal of the quad using the cross product of the edges
         normal = glm::normalize(glm::cross(v1, v2));
     }
@@ -29,8 +29,8 @@ struct Quad final : Shape {
         return {minPoint, maxPoint};
     }
 
-    glm::vec3 p0;     // One corner of the quad
-    glm::vec3 v1;     // First edge vector
-    glm::vec3 v2;     // Second edge vector
-    glm::vec3 normal; // Normal of the quad
+    glm::vec3 p0;      // One corner of the quad
+    glm::vec3 v1;      // First edge vector
+    glm::vec3 v2;      // Second edge vector
+    glm::vec3 normal;  // Normal of the quad
 };

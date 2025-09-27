@@ -9,6 +9,7 @@ add_executable(raytracer ../main.cpp ${APP_SOURCES})
 target_link_libraries(raytracer PRIVATE
         glm::glm
         rapidobj
+        sfml-graphics
         #assimp::assimp
 )
 
@@ -38,7 +39,6 @@ option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
 option(ENABLE_LTO "Enable Link Time Optimization (IPO)" OFF)
-
 
 
 # ========== Copy resources ==========

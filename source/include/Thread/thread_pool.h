@@ -17,19 +17,19 @@ public:
 
     void wait() const;
 
-    static void workerThread(ThreadPool* master);
-    void addTask(std::unique_ptr<Task> task);
+    static void           workerThread(ThreadPool* master);
+    void                  addTask(std::unique_ptr<Task> task);
     std::unique_ptr<Task> getTask();
 
     void parallelFor(size_t width, size_t height, const std::function<void(size_t, size_t)>& func,
                      bool complex = true);
 
 private:
-    std::atomic<bool> alive_ {true};
-    std::atomic<int> pendingTasks_ {0};
-    std::vector<std::thread> threads_;
+    std::atomic<bool>                 alive_{true};
+    std::atomic<int>                  pendingTasks_{0};
+    std::vector<std::thread>          threads_;
     std::queue<std::unique_ptr<Task>> tasks_;
-    SpinLock spinlock_{};
+    SpinLock                          spinlock_{};
 };
 
 inline ThreadPool threadpool{};

@@ -6,23 +6,20 @@
 #include "Shape/scene.h"
 #include "Util/rng.h"
 
-
-
 #define DEFINE_RENDERER(className)                                                                 \
     class className##Renderer : public BaseRenderer {                                              \
     public:                                                                                        \
         className##Renderer(Camera& camera, const Scene& scene) : BaseRenderer(camera, scene) {}   \
                                                                                                    \
     private:                                                                                       \
-        glm::vec3 renderPixel(const glm::ivec2& pixelCoord, RNG& rng) override;                              \
+        glm::vec3 renderPixel(const glm::ivec2& pixelCoord, RNG& rng) override;                    \
     };
 
 class BaseRenderer {
+    friend class Previewer;
+
 public:
-    BaseRenderer(Camera& camera, const Scene& scene)
-        : camera_(camera), scene_(scene)
-    {
-    }
+    BaseRenderer(Camera& camera, const Scene& scene) : camera_(camera), scene_(scene) {}
 
     virtual ~BaseRenderer() = default;
 

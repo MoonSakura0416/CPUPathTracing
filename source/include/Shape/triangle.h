@@ -9,8 +9,7 @@ struct Triangle final : public Shape {
     {
     }
 
-    Triangle(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2)
-        : p0(p0), p1(p1), p2(p2)
+    Triangle(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2) : p0(p0), p1(p1), p2(p2)
     {
         glm::vec3 e1 = p1 - p0;
         glm::vec3 e2 = p2 - p0;

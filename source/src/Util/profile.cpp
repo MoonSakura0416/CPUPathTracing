@@ -2,7 +2,6 @@
 
 #include "Util/profile.h"
 
-
 Profile::Profile(std::string name)
     : name(std::move(name)), start(std::chrono::high_resolution_clock::now())
 {

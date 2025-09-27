@@ -5,11 +5,10 @@
 #include "Camera/ray.h"
 #include "Util/constants.h"
 
-struct  AABB {
-    AABB() :min(Infinity), max(-Infinity) {}
+struct AABB {
+    AABB() : min(Infinity), max(-Infinity) {}
 
-    AABB(const glm::vec3& min, const glm::vec3& max)
-        : min(min), max(max) {}
+    AABB(const glm::vec3& min, const glm::vec3& max) : min(min), max(max) {}
 
     [[nodiscard]] bool hasIntersection(const Ray& ray, float tMin, float tMax) const;
 
@@ -19,7 +18,8 @@ struct  AABB {
         max = glm::max(max, pos);
     }
 
-    void expand(const AABB& other) {
+    void expand(const AABB& other)
+    {
         min = glm::min(min, other.min);
         max = glm::max(max, other.max);
     }
@@ -45,9 +45,12 @@ struct  AABB {
     [[nodiscard]] glm::vec3 getConer(const size_t idx) const
     {
         auto corner = max;
-        if (idx & 1) corner.x = min.x;
-        if (idx & 2) corner.y = min.y;
-        if (idx & 4) corner.z = min.z;
+        if (idx & 1)
+            corner.x = min.x;
+        if (idx & 2)
+            corner.y = min.y;
+        if (idx & 4)
+            corner.z = min.z;
         return corner;
     }
 
@@ -59,7 +62,4 @@ struct  AABB {
 
     glm::vec3 min;
     glm::vec3 max;
-
-
-
 };

@@ -17,7 +17,7 @@ public:
      */
     void save(const std::filesystem::path& path) const;
 
-    [[nodiscard]] size_t getWidth() const
+    [[nodiscard]] size_t getWidth() const noexcept
     {
         return width_;
     }
@@ -46,6 +46,15 @@ public:
         pixels_.clear();
         pixels_.resize(width_ * height_);
     }
+
+    void setResolution(size_t width, size_t height)
+    {
+        width_ = width;
+        height_ = height;
+        pixels_.resize(width_ * height_);
+    }
+
+    std::vector<uint8_t> generateRGBABuffer() const;
 
 private:
     size_t             width_{0}, height_{0};

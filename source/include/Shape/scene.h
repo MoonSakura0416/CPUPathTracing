@@ -22,5 +22,5 @@ public:
 
 private:
     std::vector<ShapeInstance> shape_;
-    SceneBVH bvh_;
+    SceneBVH                   bvh_;
 };

@@ -25,18 +25,17 @@ struct BVHTreeNode {
 struct alignas(32) BVHNode {
     AABB aabb{};
     union {
-        int childIndex; // index of right child, 0 means leaf node
-        int triStart;   // start index of triangles in leaf node
+        int childIndex;  // index of right child, 0 means leaf node
+        int triStart;    // start index of triangles in leaf node
     };
     uint16_t triCount{0};   // number of triangles in leaf node
     uint8_t  splitAxis{0};  // 0:x, 1:y, 2:z
 };
 
 struct BVHState {
-
     void addLeaf(const BVHTreeNode* node)
     {
-        leafCount ++;
+        leafCount++;
         maxLeafTriCount = glm::max(maxLeafTriCount, node->triangles.size());
         maxDepth = glm::max(maxDepth, node->depth);
     }
@@ -51,19 +50,20 @@ class BVHNodeAllocator {
 public:
     BVHNodeAllocator() : ptr_(BlockSize) {}
 
-    BVHTreeNode* allocate() {
+    BVHTreeNode* allocate()
+    {
         if (ptr_ == BlockSize) {
             nodeBlocks_.push_back(std::make_unique<BVHTreeNode[]>(BlockSize));
             ptr_ = 0;
         }
-        // Return a raw pointer to the next available node in the current block and advance the pointer.
+        // Return a raw pointer to the next available node in the current block and advance the
+        // pointer.
         return &nodeBlocks_.back()[ptr_++];
     }
 
 private:
-
-    static constexpr size_t BlockSize = 4096;
-    size_t ptr_;
+    static constexpr size_t                     BlockSize = 4096;
+    size_t                                      ptr_;
     std::vector<std::unique_ptr<BVHTreeNode[]>> nodeBlocks_;
 };
 
@@ -85,7 +85,7 @@ private:
     size_t recursiveFlatten(const BVHTreeNode* node);
 
 private:
-    BVHNodeAllocator nodeAllocator_;
-    std::vector<BVHNode> nodes_;
+    BVHNodeAllocator      nodeAllocator_;
+    std::vector<BVHNode>  nodes_;
     std::vector<Triangle> triangles_;
 };

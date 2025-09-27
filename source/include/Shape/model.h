@@ -6,7 +6,7 @@
 #include "triangle.h"
 #include "Accelerate/bvh.h"
 
-class Model final : public Shape{
+class Model final : public Shape {
 public:
     explicit Model(const std::vector<Triangle>& triangles)
     {
@@ -24,5 +24,5 @@ public:
     }
 
 private:
-    BVH bvh_    ;
+    BVH bvh_;
 };
