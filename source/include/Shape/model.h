@@ -23,6 +23,16 @@ public:
         return bvh_.getBound();
     }
 
+    [[nodiscard]] float                      getArea() const override
+    {
+        return bvh_.getArea();
+    }
+
+    [[nodiscard]] std::optional<ShapeSample> shapeSample(const RNG& rng) const override
+    {
+        return bvh_.shapeSample(rng);
+    }
+
 private:
     BVH bvh_;
 };

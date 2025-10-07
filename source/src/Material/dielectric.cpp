@@ -1,7 +1,7 @@
 #include "Material/dielectric.h"
 
 std::optional<BSDFSample> Dielectric::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
-                                                 const RNG& rng)
+                                                 const RNG& rng) const
 {
     constexpr float eps = 1e-6f;
 
@@ -65,4 +65,57 @@ std::optional<BSDFSample> Dielectric::sampleBSDF(const glm::vec3& hitPos, const 
         microfacet_.heightCorrelatedMaskingShadowing(lightDir, wi, microfacetNormal) *
         glm::abs(glm::dot(wi, microfacetNormal) / (lightDir.y * wi.y));
     return BSDFSample{bsdf * etaRatio * etaRatio, pdf, lightDir};
+}
+glm::vec3 Dielectric::BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                           const glm::vec3& viewDir) const
+{
+    if (isDeltaDistribution()) {
+        return {};
+    }
+
+    constexpr float eps = 1e-6f;
+    float           lv = lightDir.y * viewDir.y;
+    if (lv == 0.f) {
+        return {};
+    }
+
+    float cosThetaI = glm::clamp(viewDir.y, -1.f, 1.f);
+    float etaRatio;
+    float scale = 1;
+    if (cosThetaI >= 0.0f) {  // outside -> inside
+        etaRatio = 1.f / ior_;
+    } else {  // inside -> outside
+        etaRatio = ior_;
+        cosThetaI = -cosThetaI;
+        scale = -1;
+    }
+
+    float cosThetaT = 0.f;
+    float reflectance = FresnelDielectric(etaRatio, cosThetaI, cosThetaT);
+
+    if (lv < 0.f) {
+        // BTDF
+        glm::vec3 microfacetNormal =
+            (lightDir + viewDir * etaRatio) * scale / (etaRatio * cosThetaI - cosThetaT);
+        const float detJ =
+            etaRatio * etaRatio * glm::abs(glm::dot(lightDir, microfacetNormal)) /
+            glm::pow(glm::abs(glm::dot(viewDir, microfacetNormal)) -
+                         etaRatio * etaRatio * glm::abs(glm::dot(lightDir, microfacetNormal)),
+                     2);
+        const glm::vec3 btdf =
+            (1 - reflectance) * albedoT_ * detJ * microfacet_.normalDistribution(microfacetNormal) *
+            microfacet_.heightCorrelatedMaskingShadowing(lightDir, viewDir, microfacetNormal) *
+            glm::abs(glm::dot(viewDir, microfacetNormal) / (lv));
+        return btdf;
+    }
+    // BRDF
+    glm::vec3 microfacetNormal = glm::normalize(lightDir + viewDir);
+    if (microfacetNormal.y <= 0.f) {
+        microfacetNormal = -microfacetNormal;
+    }
+    const glm::vec3 brdf =
+        reflectance * albedoR_ *
+        microfacet_.heightCorrelatedMaskingShadowing(lightDir, viewDir, microfacetNormal) *
+        microfacet_.normalDistribution(microfacetNormal) / (4.f * glm::abs(lv));
+    return brdf;
 }

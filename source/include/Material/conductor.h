@@ -11,7 +11,15 @@ public:
     }
 
     std::optional<BSDFSample> sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
-                                         const RNG& rng) override;
+                                         const RNG& rng)const override;
+
+    [[nodiscard]] glm::vec3 BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                                 const glm::vec3& viewDir) const override;
+
+    [[nodiscard]] bool      isDeltaDistribution() const override
+    {
+        return microfacet_.isDeltaDistribution();
+    }
 
 private:
     glm::vec3  ior_{}, k_{};

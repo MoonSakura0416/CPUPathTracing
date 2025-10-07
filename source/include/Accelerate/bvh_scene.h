@@ -12,7 +12,7 @@ struct ShapeInstance {
         // Transform the 8 corners of the AABB and compute the new AABB in world space
         AABB transformedAABB{};
         for (size_t i = 0; i < 8; ++i) {
-            glm::vec3 corner = aabb.getConer(i);
+            glm::vec3 corner = aabb.getCorner(i);
             glm::vec3 transformedCorner = glm::vec3(modelMatrix * glm::vec4(corner, 1.f));
             transformedAABB.expand(transformedCorner);
         }
@@ -20,12 +20,12 @@ struct ShapeInstance {
         center = (aabb.min + aabb.max) * 0.5f;
     }
 
-    std::shared_ptr<Shape>    shape;
-    std::shared_ptr<Material> material;
-    glm::mat4                 modelMatrix;
-    glm::mat4                 inverseModelMatrix;
-    AABB                      aabb{};
-    glm::vec3                 center{};
+    const Shape*    shape{nullptr};
+    const Material* material{nullptr};
+    glm::mat4       modelMatrix;
+    glm::mat4       inverseModelMatrix;
+    AABB            aabb{};
+    glm::vec3       center{};
 };
 
 struct SceneBVHTreeNode {

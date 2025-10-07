@@ -16,6 +16,10 @@ struct Sphere final : public Shape {
         return {center - radius, center + radius};
     }
 
+    [[nodiscard]] float                      getArea() const override;
+
+    [[nodiscard]] std::optional<ShapeSample> shapeSample(const RNG& rng) const override;
+
     glm::vec3 center;
     float     radius;
 };

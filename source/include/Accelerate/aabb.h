@@ -42,7 +42,7 @@ struct AABB {
     }
 
     // idx from 0 to 7 to get the 8 corners of the AABB
-    [[nodiscard]] glm::vec3 getConer(const size_t idx) const
+    [[nodiscard]] glm::vec3 getCorner(const size_t idx) const
     {
         auto corner = max;
         if (idx & 1)

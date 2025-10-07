@@ -6,6 +6,12 @@
 #include "Util/constants.h"
 #include "Accelerate/aabb.h"
 
+struct ShapeSample {
+    glm::vec3 point;
+    glm::vec3 normal;
+    float pdf;
+};
+
 struct Shape {
     virtual ~Shape() = default;
 
@@ -16,4 +22,14 @@ struct Shape {
     {
         return {};
     };
+
+    [[nodiscard]] virtual float getArea() const
+    {
+        return -1.f;
+    }
+
+    [[nodiscard]] virtual std::optional<ShapeSample> shapeSample(const RNG& rng) const
+    {
+        return std::nullopt;
+    }
 };

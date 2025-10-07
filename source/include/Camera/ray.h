@@ -24,8 +24,8 @@ struct Ray {
 };
 
 struct HitInfo {
-    float                     hitT;
-    glm::vec3                 hitPos;
-    glm::vec3                 normal;
-    std::shared_ptr<Material> material;
+    float           hitT;
+    glm::vec3       hitPos;
+    glm::vec3       normal;
+    const Material* material;
 };

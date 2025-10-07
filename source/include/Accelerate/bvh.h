@@ -4,6 +4,7 @@
 
 #include "aabb.h"
 #include "Shape/triangle.h"
+#include "Sample/alias_table.h"
 
 struct BVHTreeNode {
     void updateAABB()
@@ -79,6 +80,10 @@ public:
         return nodes_[0].aabb;
     }
 
+    [[nodiscard]] float                      getArea() const override;
+
+    [[nodiscard]] std::optional<ShapeSample> shapeSample(const RNG& rng) const override;
+
 private:
     void recursiveSplit(BVHTreeNode* node, BVHState& state);
 
@@ -88,4 +93,6 @@ private:
     BVHNodeAllocator      nodeAllocator_;
     std::vector<BVHNode>  nodes_;
     std::vector<Triangle> triangles_;
+    float area_{};
+    AliasTable aliasTable_;
 };

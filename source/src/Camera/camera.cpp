@@ -68,7 +68,7 @@ void Camera::turn(const glm::vec2& delta)
     if (phi_ < 0)
         phi_ += 360;
     theta_ += delta.y * turnSpeed_.y;
-    theta_ = glm::clamp(theta_, -179.f, 179.f);
+    theta_ = glm::clamp(theta_, 1.f, 179.f);
 
     const float sinTheta = glm::sin(glm::radians(theta_));
     const float cosTheta = glm::cos(glm::radians(theta_));

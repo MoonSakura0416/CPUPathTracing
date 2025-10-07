@@ -1,4 +1,5 @@
 #include "Shape/sphere.h"
+#include "Sample/spherical.h"
 
 std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax) const
 {
@@ -27,4 +28,15 @@ std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax)
     }
 
     return std::nullopt;
+}
+
+float Sphere::getArea() const
+{
+    return 4 * Pi * radius * radius;
+}
+
+std::optional<ShapeSample> Sphere::shapeSample(const RNG& rng) const
+{
+    const glm::vec3 normal = UniformSampleSphere(rng);
+    return ShapeSample{center + normal * radius, normal, 1.f / getArea()};
 }

@@ -55,6 +55,9 @@ bool Previewer::preview()
                     std::println("FPS: {:f}", fps_);
                 } else if (key_released->scancode == S::Hyphen) {
                     fps_ -= 1;
+                    if (fps_ < 1) {
+                        fps_ = 1;
+                    }
                     std::println("FPS: {:f}", fps_);
                 } else if (key_released->scancode == S::CapsLock) {
                     grabbed = !grabbed;

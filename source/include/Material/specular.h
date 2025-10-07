@@ -7,7 +7,18 @@ public:
     explicit Specular(const glm::vec3& albedo) : albedo_(albedo) {}
 
     std::optional<BSDFSample> sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
-                                         const RNG& rng) override;
+                                         const RNG& rng)const override;
+
+    [[nodiscard]] glm::vec3 BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                                 const glm::vec3& viewDir) const override
+    {
+        return {};
+    }
+
+    [[nodiscard]] bool      isDeltaDistribution() const override
+    {
+        return true;
+    }
 
 private:
     glm::vec3 albedo_{};

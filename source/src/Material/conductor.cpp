@@ -36,7 +36,7 @@ glm::vec3 FresnelConductor(const glm::vec3& ior, const glm::vec3& k, float cosTh
 }
 
 std::optional<BSDFSample> Conductor::sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
-                                                const RNG& rng)
+                                                const RNG& rng) const
 {
     constexpr float eps = 1e-6f;
     glm::vec3       microfacetNormal = {0, 1, 0};
@@ -59,4 +59,27 @@ std::optional<BSDFSample> Conductor::sampleBSDF(const glm::vec3& hitPos, const g
                (4.f * glm::max(glm::abs(wi.y * lightDir.y), eps));
     }
     return BSDFSample{bsdf, pdf, lightDir};
+}
+glm::vec3 Conductor::BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                          const glm::vec3& viewDir) const
+{
+    if (microfacet_.isDeltaDistribution()) {
+        return {};
+    }
+
+    constexpr float eps = 1e-6f;
+    float lv = viewDir.y * lightDir.y;
+    if (lv <= 0.f) {
+        return {};
+    }
+
+    glm::vec3 microfacetNormal = glm::normalize(lightDir + viewDir);
+    if (microfacetNormal.y <= 0.f) {
+        microfacetNormal = -microfacetNormal;
+    }
+    const glm::vec3 fr = FresnelConductor(ior_, k_, glm::abs(glm::dot(viewDir, microfacetNormal)));
+    const glm::vec3 bsdf = fr * microfacet_.heightCorrelatedMaskingShadowing(lightDir, viewDir, microfacetNormal) *
+               microfacet_.normalDistribution(microfacetNormal) /
+               (4.f * glm::max(glm::abs(lv), eps));
+    return bsdf;
 }

@@ -24,6 +24,7 @@
 #include <fstream>
 #include <limits>
 #include <numbers>
+#include <numeric>
 #include <cmath>
 #include <optional>
 #include <filesystem>

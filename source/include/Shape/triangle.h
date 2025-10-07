@@ -30,6 +30,10 @@ struct Triangle final : public Shape {
         return bound;
     }
 
+    [[nodiscard]] float                      getArea() const override;
+
+    [[nodiscard]] std::optional<ShapeSample> shapeSample(const RNG& rng) const override;
+
     glm::vec3 p0, p1, p2;
     glm::vec3 n0, n1, n2;
 };

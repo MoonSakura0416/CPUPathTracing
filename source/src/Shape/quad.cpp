@@ -29,3 +29,25 @@ std::optional<HitInfo> Quad::intersect(const Ray& ray, float tMin, float tMax) c
     }
     return std::nullopt;
 }
+
+float Quad::getArea() const
+{
+    const float A = glm::length(glm::cross(v1, v2));
+    return A;
+}
+
+std::optional<ShapeSample> Quad::shapeSample(const RNG& rng) const
+{
+    const float A = getArea();
+    if (A <= 0.0f)
+        return std::nullopt;
+
+    const float u = rng.uniform();
+    const float v = rng.uniform();
+
+    const glm::vec3 p  = p0 + u * v1 + v * v2;
+
+    const glm::vec3 ns = glm::normalize(normal);
+
+    return ShapeSample{p, ns, 1.0f / A};
+}

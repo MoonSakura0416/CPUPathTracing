@@ -29,3 +29,33 @@ std::optional<HitInfo> Triangle::intersect(const Ray& ray, float tMin, float tMa
 
     return std::nullopt;
 }
+
+float Triangle::getArea() const
+{
+    return 0.5f * glm::length(glm::cross(p1 - p0, p2 - p0));
+}
+
+std::optional<ShapeSample> Triangle::shapeSample(const RNG& rng) const
+{
+    float u = rng.uniform(), v = rng.uniform();
+    if (u > v) {
+        v *= 0.5;
+        u -= v;
+    } else {
+        u *= 0.5;
+        v -= u;
+    }
+
+    const float b0 = 1.0f - u - v;
+    const float b1 = u;
+    const float b2 = v;
+
+    const float A = getArea();
+    if (A <= 0.f)
+        return std::nullopt;
+
+    const glm::vec3 p = b0 * p0 + b1 * p1 + b2 * p2;
+    const glm::vec3 ns = glm::normalize(b0 * n0 + b1 * n1 + b2 * n2);
+
+    return ShapeSample{p, ns, 1.f / A};
+}
