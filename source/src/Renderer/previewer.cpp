@@ -37,6 +37,9 @@ bool Previewer::preview()
     float              dt = 0;
     bool               result = false;
 
+    sf::Vector2i prevPos{};
+    bool havePrev{false};
+
     using S = sf::Keyboard::Scancode;
 
     while (window_->isOpen()) {
@@ -59,17 +62,28 @@ bool Previewer::preview()
                         fps_ = 1;
                     }
                     std::println("FPS: {:f}", fps_);
-                } else if (key_released->scancode == S::CapsLock) {
+                } else if (key_released->scancode == S::F1) {
                     grabbed = !grabbed;
                     window_->setMouseCursorGrabbed(grabbed);
                     window_->setMouseCursorVisible(!grabbed);
-                    sf::Mouse::setPosition(center, *window_);
+                    if (grabbed) {
+                        sf::Mouse::setPosition(center, *window_);
+                        prevPos = sf::Mouse::getPosition(*window_);
+                        havePrev = false;
+                    }
+
                 }
             } else if (auto* mouse_moved = event->getIf<sf::Event::MouseMoved>()) {
                 if (!grabbed) {
                     continue;
                 }
-                auto delta = mouse_moved->position - center;
+                auto pos = mouse_moved->position;
+                if (!havePrev) {
+                    prevPos = pos;
+                    havePrev = true;
+                    continue;
+                }
+                auto delta = pos - prevPos;
                 if (delta.x == 0 && delta.y == 0) {
                     continue;
                 }
