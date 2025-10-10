@@ -36,9 +36,9 @@ endif ()
 
 # ========== Option ==========
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
-option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
-option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" OFF)
-option(ENABLE_LTO "Enable Link Time Optimization (IPO)" OFF)
+option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer" ON)
+option(ENABLE_LTO "Enable Link Time Optimization (IPO)" ON)
 
 
 # ========== Copy resources ==========

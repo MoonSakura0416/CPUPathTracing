@@ -20,11 +20,7 @@
 #include "scene/cornellbox.h"
 
 
-void SimulateLeak()
-{
-    int* leaky_array = new int[10];
-    leaky_array[0] = 1;
-}
+
 
 int main()
 {
@@ -71,5 +67,4 @@ int main()
         pathTracingRenderer.render(32, "PT_with_sample_light.ppm");
     }
     // CornellBox();
-    SimulateLeak();
 }

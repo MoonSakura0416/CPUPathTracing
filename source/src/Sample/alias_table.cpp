@@ -8,8 +8,8 @@ void AliasTable::build(const std::vector<float>& values)
         return;
     }
 
-    float sum = 0.0f;
-    for (float v : values) {
+    double sum = 0.0f;
+    for (const float v : values) {
         assert(v >= 0.0f && "weights must be non-negative");
         sum += v;
     }
@@ -53,7 +53,7 @@ void AliasTable::build(const std::vector<float>& values)
 
         itemL.q = itemL.p;
         itemL.aliasIndex = g;
-        itemG.p -= (1.0f - itemL.q);
+        itemG.p -= (1.0 - itemL.q);
 
         if (itemG.p < 1.0f) {
             less.push_back(g);
@@ -76,8 +76,8 @@ AliasTable::SampleResult AliasTable::sample(float u) const
     const float frac = scaled - static_cast<float>(idx);
 
     const auto& item = items_[idx];
-    if (frac <= item.q) {
-        return {static_cast<int>(idx), probs_[idx]};
+    if (frac < item.q) {
+        return {static_cast<size_t>(idx), probs_[idx]};
     }
-    return {static_cast<int>(item.aliasIndex), probs_[item.aliasIndex]};
+    return {static_cast<size_t>(item.aliasIndex), probs_[item.aliasIndex]};
 }

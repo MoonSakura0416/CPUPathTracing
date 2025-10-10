@@ -5,9 +5,9 @@
 class AliasTable {
 private:
     struct Item {
-        float q = 1.0f;   // threshold in [0, 1]
+        double q = 1.0f;   // threshold in [0, 1]
         union {
-            float p;      // scaled probability during build
+            double p;      // scaled probability during build
             std::size_t aliasIndex; // alias target when q < 1
         };
         Item() : p(0.0f) {}
@@ -15,7 +15,7 @@ private:
 
 public:
     struct SampleResult {
-        int index;
+        std::size_t index;
         float prob;
     };
 
