@@ -83,3 +83,24 @@ glm::vec3 Conductor::BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
                (4.f * glm::max(glm::abs(lv), eps));
     return bsdf;
 }
+
+float Conductor::PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                     const glm::vec3& viewDir) const
+{
+    if (microfacet_.isDeltaDistribution()) {
+        return {};
+    }
+
+    float lv = viewDir.y * lightDir.y;
+    if (lv <= 0.f) {
+        return {};
+    }
+
+    glm::vec3 microfacetNormal = glm::normalize(lightDir + viewDir);
+    if (microfacetNormal.y <= 0.f) {
+        microfacetNormal = -microfacetNormal;
+    }
+
+    return microfacet_.visibleNormalDistribution(viewDir, microfacetNormal) /
+              (4.f * glm::abs(glm::dot(viewDir, microfacetNormal)));
+}

@@ -8,6 +8,7 @@ struct BSDFSample {
     glm::vec3 bsdf;
     float     pdf;
     glm::vec3 lightDir;
+    float     etaScale{1.0f};
 };
 
 class Material {
@@ -16,6 +17,9 @@ public:
 
     [[nodiscard]] virtual std::optional<BSDFSample> sampleBSDF(const glm::vec3& hitPos, const glm::vec3& wi,
                                                  const RNG& rng) const = 0;
+
+    [[nodiscard]] virtual float PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                                    const glm::vec3& viewDir) const = 0;
 
     [[nodiscard]] virtual glm::vec3 BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
                                          const glm::vec3& viewDir) const = 0;

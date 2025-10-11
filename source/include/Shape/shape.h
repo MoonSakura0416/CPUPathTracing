@@ -32,4 +32,9 @@ struct Shape {
     {
         return std::nullopt;
     }
+
+    [[nodiscard]] virtual float PDF(const glm::vec3& point, const glm::vec3& normal) const
+    {
+        return 1.f / getArea();
+    }
 };

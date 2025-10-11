@@ -11,6 +11,11 @@ struct LightSample {
     float     pdf;
 };
 
+enum class LightType {
+    Area,
+    Infinite
+};
+
 class Light {
 public:
     explicit Light(const glm::vec3& emission) : emission_(emission) {}
@@ -23,10 +28,14 @@ public:
         return emission_;
     }
 
+    [[nodiscard]] virtual LightType getType() const = 0;
+
     [[nodiscard]] virtual std::optional<LightSample>
-    lightSample(const glm::vec3& surfacePoint, float sceneRadius, const RNG& rng) const = 0;
+    lightSample(const glm::vec3& surfacePoint, float sceneRadius, const RNG& rng, bool allowMISCompensation = false) const = 0;
 
     [[nodiscard]] virtual float Phi(float radius) const = 0;
+
+    [[nodiscard]] virtual float PDF(const glm::vec3 &surfacePoint, const glm::vec3 &lightPoint, const glm::vec3 &normal, bool allowMISCompensation = false) const = 0;
 
 protected:
     glm::vec3 emission_;

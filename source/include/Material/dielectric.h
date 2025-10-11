@@ -27,6 +27,9 @@ public:
         return ior_ == 1 || microfacet_.isDeltaDistribution();
     }
 
+    [[nodiscard]] float PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                            const glm::vec3& viewDir) const override;
+
 private:
     float      ior_{0};     // index of refraction
     glm::vec3  albedoR_{};  // reflectance

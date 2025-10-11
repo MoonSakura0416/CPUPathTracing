@@ -22,7 +22,16 @@ public:
     AliasTable() = default;
 
     void build(const std::vector<float>& values);
+
     [[nodiscard]] SampleResult sample(float u) const;
+
+    [[nodiscard]] const std::vector<float>& getProbs() const {
+        return probs_;
+    }
+
+    [[nodiscard]] const std::vector<Item>& getItems() const {
+        return items_;
+    }
 
 private:
     std::vector<float> probs_; // normalized probabilities

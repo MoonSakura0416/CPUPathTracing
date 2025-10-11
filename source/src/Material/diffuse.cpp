@@ -22,3 +22,12 @@ glm::vec3 Diffuse::BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
     }
     return albedo_ / Pi;
 }
+
+float Diffuse::PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                   const glm::vec3& viewDir) const
+{
+    if (lightDir.y * viewDir.y <= 0) {
+        return 0;
+    }
+    return CosineSampleHemispherePDF(lightDir);
+}

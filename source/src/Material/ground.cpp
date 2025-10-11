@@ -30,3 +30,12 @@ glm::vec3 Ground::BSDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
         }
     return bsdf;
 }
+
+float Ground::PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                  const glm::vec3& viewDir) const
+{
+    if (lightDir.y * viewDir.y <= 0) {
+        return 0;
+    }
+    return CosineSampleHemispherePDF(lightDir);
+}

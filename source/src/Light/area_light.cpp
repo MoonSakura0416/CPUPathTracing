@@ -13,7 +13,7 @@ glm::vec3 AreaLight::getEmission(const glm::vec3& surfacePoint, const glm::vec3&
 
 std::optional<LightSample> AreaLight::lightSample(const glm::vec3&       surfacePoint,
                                                   [[maybe_unused]] float sceneRadius,
-                                                  const RNG&             rng) const
+                                                  const RNG& rng, bool allowMISCompensation) const
 {
     const auto shapeSample = shape_->shapeSample(rng);
     if (!shapeSample)
@@ -49,4 +49,15 @@ float AreaLight::Phi(float radius) const
     // return static_cast<float>(twoSided_ ? 2 : 1) * Pi * shape_->getArea() *
     //        std::max({emission_.r, emission_.g, emission_.b});
     return static_cast<float>(twoSided_ ? 2 : 1) * Pi * shape_->getArea() * Y;
+}
+
+float AreaLight::PDF(const glm::vec3 &surfacePoint, const glm::vec3 &lightPoint, const glm::vec3 &normal, bool allowMISCompensation) const
+{
+    const glm::vec3 L = surfacePoint - lightPoint;
+    const float     cosTheta = glm::dot(normal, L);
+    if (!twoSided_ && cosTheta <= 0.f)
+        return {};
+    const glm::vec3 lightVec = lightPoint - surfacePoint;
+    const float detJ = glm::abs(cosTheta / glm::dot(lightVec, lightVec));
+    return shape_->PDF(surfacePoint, normal) / (allowMISCompensation ? detJ : 1.f);
 }

@@ -17,7 +17,7 @@ std::optional<HitInfo> Sphere::intersect(const Ray& ray, float tMin, float tMax)
 
     float hitT = (h - std::sqrt(discriminant)) / a;
 
-    if (hitT < 0) {
+    if (hitT <= tMin) {
         hitT = (h + std::sqrt(discriminant)) / a;
     }
 

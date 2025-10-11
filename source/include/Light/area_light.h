@@ -14,7 +14,7 @@ public:
                                         const glm::vec3& normal) const override;
 
     [[nodiscard]] std::optional<LightSample>
-    lightSample(const glm::vec3& surfacePoint, float sceneRadius, const RNG& rng) const override;
+    lightSample(const glm::vec3& surfacePoint, float sceneRadius, const RNG& rng, bool allowMISCompensation) const override;
 
     [[nodiscard]] float Phi(float radius) const override;
 
@@ -22,6 +22,13 @@ public:
     {
         return shape_;
     }
+
+    [[nodiscard]] LightType getType() const override
+    {
+        return LightType::Area;
+    }
+
+    [[nodiscard]] float PDF(const glm::vec3 &surfacePoint, const glm::vec3 &lightPoint, const glm::vec3 &normal, bool allowMISCompensation) const override;
 
 private:
     const Shape* shape_;

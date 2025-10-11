@@ -21,6 +21,9 @@ public:
         return microfacet_.isDeltaDistribution();
     }
 
+    [[nodiscard]] float PDF(const glm::vec3& hitPos, const glm::vec3& lightDir,
+                            const glm::vec3& viewDir) const override;
+
 private:
     glm::vec3  ior_{}, k_{};
     Microfacet microfacet_;
